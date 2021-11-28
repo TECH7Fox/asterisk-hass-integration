@@ -3,7 +3,7 @@ import logging
 
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 
@@ -21,7 +21,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     add_devices([AsteriskExtension(hass, extension)], True)
 
 
-class AsteriskExtension(Entity):
+class AsteriskExtension(SensorEntity):
     """Entity for a Asterisk extension."""
 
     def __init__(self, hass, extension):
