@@ -3,9 +3,10 @@ import logging
 
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.entity import Entity, DeviceInfo
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,13 +22,13 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     add_devices([AsteriskExtension(hass, extension)], True)
 
 
-class AsteriskExtension(Entity):
+class AsteriskExtension(SensorEntity):
     """Entity for a Asterisk extension."""
 
     def __init__(self, hass, extension):
         """Setting up extension."""
         self._hass = hass
-        self._astmanager = hass.data.get("asterisk_manager")
+        self._astmanager = hass.data.get("asterisk")
         self._extension = extension
         self._state = "Unknown"
         self._astmanager.register_event("ExtensionStatus", self.handle_asterisk_event)
@@ -41,6 +42,22 @@ class AsteriskExtension(Entity):
             _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
             self._state = status
             self.hass.async_add_job(self.async_update_ha_state())
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique id for this instance."""
+        return self._extension
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return {
+            "identifiers": {
+                "101"
+            },
+            "name": self.name,
+            "manufacturer": "Asterisk",
+            "model": "SIP", #self._tech
+        }
 
     @property
     def name(self):

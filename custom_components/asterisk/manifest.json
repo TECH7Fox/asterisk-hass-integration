@@ -1,7 +1,8 @@
 {
   "domain": "asterisk",
   "name": "Asterisk",
-  "config_flow": false,
+  "version": "0.1.1",
+  "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/asterisk",
   "requirements": ["pyst2==0.5.1"],
   "ssdp": [],
