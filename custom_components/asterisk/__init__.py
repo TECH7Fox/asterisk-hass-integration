@@ -31,19 +31,23 @@ CONFIG_SCHEMA = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
+PLATFORMS = ["sensor"]
+
 _LOGGER = logging.getLogger(__name__)
 
-def handle_asterisk_event(event, manager):
+def handle_asterisk_event(event, hass, entry):
     _LOGGER.error("event.data: " + event.data)
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
+    entry.data["extension"] = event.get_header("ObjectName")
+    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
 
 def setup(hass, config):
     """Your controller/hub specific code."""
 
     if DOMAIN not in config:
         # There is an entry and nothing in configuration.yaml
-        _LOGGER.info("no Tuya config in configuration.yaml")
+        _LOGGER.info("no Asterisk config in configuration.yaml")
         return True
 
     _LOGGER.error("SETTING UP FROM SETUP")
@@ -86,7 +90,7 @@ async def async_setup_entry(hass, entry):
         manager.login(username, password)
         hass.data[DOMAIN] = manager
         _LOGGER.info("Successfully connected to Asterisk server")
-        manager.register_event("PeerEntry", handle_asterisk_event)
+        manager.register_event("PeerEntry", handle_asterisk_event(hass, entry))
         manager.sippeers()
         return True
     except asterisk.manager.ManagerException as exception:

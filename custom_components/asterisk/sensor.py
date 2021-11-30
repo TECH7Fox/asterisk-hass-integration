@@ -51,9 +51,7 @@ class AsteriskExtension(SensorEntity):
     @property
     def device_info(self) -> DeviceInfo:
         return {
-            "identifiers": {
-                "101"
-            },
+            "identifiers": {(DOMAIN, self._extension)},
             "name": self.name,
             "manufacturer": "Asterisk",
             "model": "SIP", #self._tech
