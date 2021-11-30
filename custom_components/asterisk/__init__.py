@@ -35,12 +35,12 @@ PLATFORMS = ["sensor"]
 
 _LOGGER = logging.getLogger(__name__)
 
-def handle_asterisk_event(event, manager):
+def handle_asterisk_event(event, hass, entry):
     _LOGGER.error("event.data: " + event.data)
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
-    _entry.data["extension"] = event.get_header("ObjectName")
-    _hass.config_entries.async_setup_platforms(_entry, PLATFORMS)
+    entry.data["extension"] = event.get_header("ObjectName")
+    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
 
 def setup(hass, config):
     """Your controller/hub specific code."""
@@ -89,12 +89,8 @@ async def async_setup_entry(hass, entry):
         manager.connect(host, port)
         manager.login(username, password)
         hass.data[DOMAIN] = manager
-        global _hass
-        _hass = hass
-        global _entry
-        _entry = entry
         _LOGGER.info("Successfully connected to Asterisk server")
-        manager.register_event("PeerEntry", handle_asterisk_event)
+        manager.register_event("PeerEntry", lambda event, hass=hass, entry=entry: handle_asterisk_event(event, hass, entry))
         manager.sippeers()
         return True
     except asterisk.manager.ManagerException as exception:
