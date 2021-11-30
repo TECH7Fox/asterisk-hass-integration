@@ -1,4 +1,5 @@
 """Astisk Component."""
+from _typeshed import Self
 import logging
 import json
 
@@ -9,6 +10,9 @@ from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNA
 import homeassistant.helpers.config_validation as cv
 
 from .const import DOMAIN
+
+_hass: HomeAssistant
+_entry: ConfigEntry
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 5038
@@ -35,12 +39,12 @@ PLATFORMS = ["sensor"]
 
 _LOGGER = logging.getLogger(__name__)
 
-def handle_asterisk_event(event, hass, entry):
+def handle_asterisk_event(event, manager):
     _LOGGER.error("event.data: " + event.data)
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
-    entry.data["extension"] = event.get_header("ObjectName")
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    _entry.data["extension"] = event.get_header("ObjectName")
+    _hass.config_entries.async_setup_platforms(_entry, PLATFORMS)
 
 def setup(hass, config):
     """Your controller/hub specific code."""
@@ -89,8 +93,11 @@ async def async_setup_entry(hass, entry):
         manager.connect(host, port)
         manager.login(username, password)
         hass.data[DOMAIN] = manager
+        _hass = hass
+        _entry = entry
+        
         _LOGGER.info("Successfully connected to Asterisk server")
-        manager.register_event("PeerEntry", handle_asterisk_event(hass, entry))
+        manager.register_event("PeerEntry", handle_asterisk_event)
         manager.sippeers()
         return True
     except asterisk.manager.ManagerException as exception:
