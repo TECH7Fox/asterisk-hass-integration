@@ -39,7 +39,7 @@ def handle_asterisk_event(event, hass, entry):
     _LOGGER.error("event.data: " + event.data)
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
-    entry.data["extension"] = event.get_header("ObjectName")
+    dict(entry.data["extension"]) = event.get_header("ObjectName")
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
 
 def setup(hass, config):
