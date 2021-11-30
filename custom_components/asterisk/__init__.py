@@ -1,5 +1,6 @@
 """Astisk Component."""
 import logging
+import json
 
 import asterisk.manager
 import voluptuous as vol
@@ -32,9 +33,20 @@ CONFIG_SCHEMA = vol.Schema(
 
 _LOGGER = logging.getLogger(__name__)
 
+def handle_asterisk_event(event, manager):
+    _LOGGER.error("event.data: " + event.data)
+    _LOGGER.error("event.headers: " + json.dumps(event.headers))
+    _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
 
 def setup(hass, config):
     """Your controller/hub specific code."""
+
+    if DOMAIN not in config:
+        # There is an entry and nothing in configuration.yaml
+        _LOGGER.info("no Tuya config in configuration.yaml")
+        return True
+
+    _LOGGER.error("SETTING UP FROM SETUP")
 
     manager = asterisk.manager.Manager()
 
@@ -43,13 +55,43 @@ def setup(hass, config):
     username = config[DOMAIN].get(CONF_USERNAME, DEFAULT_USERNAME)
     password = config[DOMAIN].get(CONF_PASSWORD, DEFAULT_PASSWORD)
     _LOGGER.info("Asterisk component is now set up")
-
     try:
         manager.connect(host, port)
         manager.login(username, password)
         hass.data[DOMAIN] = manager
         _LOGGER.info("Successfully connected to Asterisk server")
+        manager.register_event("PeerEntry", handle_asterisk_event)
+        manager.sippeers()
         return True
     except asterisk.manager.ManagerException as exception:
         _LOGGER.error("Error connecting to Asterisk: %s", exception.args[1])
+        _LOGGER.error(f"Host: {host}, Port: {port}, Username: {username}, Password: {password}")
+        return False
+
+async def async_setup_entry(hass, entry):
+    """Your controller/hub specific code."""
+
+    _LOGGER.error("SETTING UP FROM ENTRY")
+
+    manager = asterisk.manager.Manager()
+
+    _LOGGER.error(json.dumps(entry.data))
+
+    host = entry.data[DOMAIN]
+    port = entry.data[DOMAIN]
+    username = entry.data[DOMAIN]
+    password = entry.data[DOMAIN]
+
+    _LOGGER.info("Asterisk component is now set up")
+    try:
+        manager.connect(host, port)
+        manager.login(username, password)
+        hass.data[DOMAIN] = manager
+        _LOGGER.info("Successfully connected to Asterisk server")
+        manager.register_event("PeerEntry", handle_asterisk_event)
+        manager.sippeers()
+        return True
+    except asterisk.manager.ManagerException as exception:
+        _LOGGER.error("Error connecting to Asterisk: %s", exception.args[1])
+        _LOGGER.error(f"Host: {host}, Port: {port}, Username: {username}, Password: {password}")
         return False

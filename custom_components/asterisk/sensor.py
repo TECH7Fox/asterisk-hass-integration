@@ -5,7 +5,8 @@ import voluptuous as vol
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.entity import Entity, DeviceInfo
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,6 +42,22 @@ class AsteriskExtension(SensorEntity):
             _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
             self._state = status
             self.hass.async_add_job(self.async_update_ha_state())
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique id for this instance."""
+        return self._extension
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return {
+            "identifiers": {
+                "101"
+            },
+            "name": self.name,
+            "manufacturer": "Asterisk",
+            "model": "SIP", #self._tech
+        }
 
     @property
     def name(self):
