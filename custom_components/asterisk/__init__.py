@@ -75,8 +75,6 @@ async def async_setup_entry(hass, entry):
 
     manager = asterisk.manager.Manager()
 
-    _LOGGER.error(json.dumps(entry.data))
-
     host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]
     username = entry.data[CONF_USERNAME]
