@@ -1,5 +1,4 @@
 """Astisk Component."""
-from _typeshed import Self
 import logging
 import json
 
