@@ -77,10 +77,10 @@ async def async_setup_entry(hass, entry):
 
     _LOGGER.error(json.dumps(entry.data))
 
-    host = entry.data[DOMAIN]
-    port = entry.data[DOMAIN]
-    username = entry.data[DOMAIN]
-    password = entry.data[DOMAIN]
+    host = entry.data[CONF_HOST]
+    port = entry.data[CONF_PORT]
+    username = entry.data[CONF_USERNAME]
+    password = entry.data[CONF_PASSWORD]
 
     _LOGGER.info("Asterisk component is now set up")
     try:
