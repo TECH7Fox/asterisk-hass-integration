@@ -41,11 +41,7 @@ def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
     _extension = event.get_header("ObjectName")
-    entry.entry_id=f"{DOMAIN}_{_extension}"
-    entry.unique_id=f"{DOMAIN}_{_extension}"
-    entry.data={
-        "extension": _extension
-    }
+    hass.data[DOMAIN][entry.entry_id] = _extension
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
 
 def setup(hass, config):
@@ -68,7 +64,8 @@ def setup(hass, config):
     try:
         manager.connect(host, port)
         manager.login(username, password)
-        hass.data[DOMAIN] = manager
+        hass.data.setdefault(DOMAIN, {})
+        hass.data[DOMAIN]["manager"] = manager
         _LOGGER.info("Successfully connected to Asterisk server")
         manager.register_event("PeerEntry", handle_asterisk_event)
         manager.sippeers()

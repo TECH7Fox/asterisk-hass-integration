@@ -23,19 +23,21 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
 async def async_setup_entry(hass, entry, async_add_devices):
     """Setting up every extension."""
-    extension = entry.data["extension"]
+    extension = hass.data[DOMAIN][entry.entry_id]
+    entry_id = entry.entry_id
     _LOGGER.warning(f"Setting up asterisk extension device for extension {extension}")
-    async_add_devices([AsteriskExtension(hass, extension)], True)
+    async_add_devices([AsteriskExtension(hass, extension, entry_id)], True)
 
 class AsteriskExtension(SensorEntity):
     """Entity for a Asterisk extension."""
 
-    def __init__(self, hass, extension):
+    def __init__(self, hass, extension, entry_id):
         """Setting up extension."""
         self._hass = hass
-        self._astmanager = hass.data.get("asterisk")
+        self._astmanager = hass.data.get(DOMAIN)
         self._extension = extension
         self._state = "Unknown"
+        self._unique_id = entry_id
         self._astmanager.register_event("ExtensionStatus", self.handle_asterisk_event)
         _LOGGER.info("Asterisk extension device initialized")
 
@@ -51,12 +53,12 @@ class AsteriskExtension(SensorEntity):
     @property
     def unique_id(self) -> str:
         """Return a unique id for this instance."""
-        return self._extension
+        return self._unique_id
 
     @property
     def device_info(self) -> DeviceInfo:
         return {
-            "identifiers": {(DOMAIN, self._extension)},
+            "identifiers": {(DOMAIN, self._unique_id)},
             "name": self.name,
             "manufacturer": "Asterisk",
             "model": "SIP", #self._tech
