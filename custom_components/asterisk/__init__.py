@@ -41,7 +41,7 @@ def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
     _extension = event.get_header("ObjectName")
-    entry.id=DOMAIN + "_" + _extension
+    entry.entry_id=DOMAIN + "_" + _extension
     entry.data={
         "extension": _extension
     }
