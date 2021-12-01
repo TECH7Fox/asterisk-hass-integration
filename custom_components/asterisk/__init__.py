@@ -91,7 +91,8 @@ async def async_setup_entry(hass, entry):
     try:
         manager.connect(host, port)
         manager.login(username, password)
-        hass.data[DOMAIN] = manager
+        hass.data.setdefault(DOMAIN, {})
+        hass.data[DOMAIN]["manager"] = manager
         _LOGGER.info("Successfully connected to Asterisk server")
         manager.register_event("PeerEntry", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
         manager.sippeers()
