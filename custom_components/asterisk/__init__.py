@@ -37,7 +37,7 @@ PLATFORMS = ["sensor"]
 
 _LOGGER = logging.getLogger(__name__)
 
-def handle_asterisk_event(event, hass, entry):
+def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("event.data: " + event.data)
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
@@ -94,7 +94,7 @@ async def async_setup_entry(hass, entry):
         manager.login(username, password)
         hass.data[DOMAIN] = manager
         _LOGGER.info("Successfully connected to Asterisk server")
-        manager.register_event("PeerEntry", lambda event, hass=hass, entry=entry: handle_asterisk_event(event, hass, entry))
+        manager.register_event("PeerEntry", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
         manager.sippeers()
         return True
     except asterisk.manager.ManagerException as exception:
