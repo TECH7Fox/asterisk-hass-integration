@@ -21,6 +21,11 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     _LOGGER.info(f"Setting up asterisk extension device for extension {extension}")
     add_devices([AsteriskExtension(hass, extension)], True)
 
+async def async_setup_entry(hass, entry, async_add_devices):
+    """Setting up every extension."""
+    extension = entry.data["extension"]
+    _LOGGER.warning(f"Setting up asterisk extension device for extension {extension}")
+    async_add_devices([AsteriskExtension(hass, extension)], True)
 
 class AsteriskExtension(SensorEntity):
     """Entity for a Asterisk extension."""
