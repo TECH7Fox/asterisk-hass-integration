@@ -34,7 +34,7 @@ class AsteriskExtension(SensorEntity):
     def __init__(self, hass, extension, entry_id):
         """Setting up extension."""
         self._hass = hass
-        self._astmanager = hass.data.get(DOMAIN)
+        self._astmanager = hass.data[DOMAIN]["manager"]
         self._extension = extension
         self._state = "Unknown"
         self._unique_id = entry_id
