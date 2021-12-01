@@ -1,12 +1,14 @@
 """Astisk Component."""
 import logging
 import json
+from typing import Any
 
 import asterisk.manager
 import voluptuous as vol
 
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 import homeassistant.helpers.config_validation as cv
+from homeassistant.config_entries import ConfigEntry
 
 from .const import DOMAIN
 
@@ -39,7 +41,9 @@ def handle_asterisk_event(event, hass, entry):
     _LOGGER.error("event.data: " + event.data)
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
-    dict(entry.data["extension"]) = event.get_header("ObjectName")
+    entry.data={
+        "extension": event.get_header("ObjectName")
+    }
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
 
 def setup(hass, config):
