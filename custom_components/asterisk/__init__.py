@@ -38,11 +38,12 @@ PLATFORMS = ["sensor"]
 _LOGGER = logging.getLogger(__name__)
 
 def handle_asterisk_event(event, manager, hass, entry):
-    _LOGGER.error("event.data: " + event.data)
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
+    _extension = event.get_header("ObjectName")
+    entry.title=f"{_extension} (from configuration)",
     entry.data={
-        "extension": event.get_header("ObjectName")
+        "extension": _extension
     }
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
 
