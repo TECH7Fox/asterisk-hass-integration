@@ -9,6 +9,7 @@ import voluptuous as vol
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.helpers.discovery import load_platform
 
 from .const import DOMAIN
 
@@ -42,7 +43,7 @@ def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
     _extension = event.get_header("ObjectName")
     hass.data[DOMAIN][entry.entry_id] = _extension
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    hass.async_add_job(hass.config_entries.async_forward_entry_setup(entry, 'sensor'))
 
 def setup(hass, config):
     """Your controller/hub specific code."""
