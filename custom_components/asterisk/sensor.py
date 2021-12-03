@@ -38,7 +38,7 @@ class AsteriskExtension(SensorEntity):
         self._astmanager = hass.data[DOMAIN]["manager"]
         self._extension = extension
         self._state = "Unknown"
-        self._unique_id = entry_id
+        self._unique_id = f"{entry_id}_{extension}"
         self._astmanager.register_event("ExtensionStatus", self.handle_asterisk_event)
         _LOGGER.info("Asterisk extension device initialized")
 
