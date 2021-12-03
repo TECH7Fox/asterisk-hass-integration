@@ -20,6 +20,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     extension = config.get("extension")
     _LOGGER.info(f"Setting up asterisk extension device for extension {extension}")
     add_devices([AsteriskExtension(hass, extension)], True)
+    #await async_setup_platform(hass, {}, async_add_entities)
 
 async def async_setup_entry(hass, entry, async_add_devices):
     """Setting up every extension."""

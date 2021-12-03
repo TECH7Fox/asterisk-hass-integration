@@ -42,7 +42,11 @@ def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
     _extension = event.get_header("ObjectName")
     hass.data[DOMAIN][entry.entry_id] = _extension
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    #hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    for component in PLATFORMS:
+        hass.async_create_task(
+            hass.config_entries.async_forward_entry_setup(entry, component)
+        )
 
 def setup(hass, config):
     """Your controller/hub specific code."""
