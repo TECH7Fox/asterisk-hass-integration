@@ -56,8 +56,7 @@ async def handle_asterisk_event(event, manager, hass, entry):
         name=f"Asterisk Extension {_extension}",
     )
 
-    for platform in PLATFORMS:
-        hass.config_entries.async_forward_entry_setup(entry, platform) # MAKE NEW entry WITH ONLY EXTENSION DATA AND SAME ENTRY_ID
+    hass.config_entries.async_forward_entry_setup(entry, "sensor") # MAKE NEW entry WITH ONLY EXTENSION DATA AND SAME ENTRY_ID
 
 
 def setup(hass, config):
