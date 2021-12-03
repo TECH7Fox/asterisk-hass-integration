@@ -27,18 +27,18 @@ async def async_setup_entry(hass, entry, async_add_devices):
     extension = hass.data[DOMAIN][entry.entry_id]
     entry_id = entry.entry_id
     _LOGGER.warning(f"Setting up asterisk extension device for extension {extension}")
-    async_add_devices([AsteriskExtension(hass, extension, entry_id)], True)
+    async_add_devices([AsteriskExtension(hass, extension)], True)
 
 class AsteriskExtension(SensorEntity):
     """Entity for a Asterisk extension."""
 
-    def __init__(self, hass, extension, entry_id):
+    def __init__(self, hass, extension):
         """Setting up extension."""
         self._hass = hass
         self._astmanager = hass.data[DOMAIN]["manager"]
         self._extension = extension
         self._state = "Unknown"
-        self._unique_id = f"{entry_id}_{extension}"
+        self._unique_id = f"_{extension}"
         self._astmanager.register_event("ExtensionStatus", self.handle_asterisk_event)
         _LOGGER.info("Asterisk extension device initialized")
 
