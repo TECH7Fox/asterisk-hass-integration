@@ -5,6 +5,7 @@ from typing import Any
 
 import asterisk.manager
 import voluptuous as vol
+import asyncio
 
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME, CONF_NAME
 import homeassistant.helpers.config_validation as cv
@@ -38,21 +39,18 @@ PLATFORMS = ["sensor"]
 
 _LOGGER = logging.getLogger(__name__)
 
-def handle_asterisk_event(event, manager, hass, entry):
+async def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
     _extension = event.get_header("ObjectName")
     hass.data[DOMAIN][entry.entry_id] = _extension
     #hass.config_entries.async_setup_platforms(entry, PLATFORMS)
-    for platform in PLATFORMS:
-        _LOGGER.error("Setting up sensor")
-        async_load_platform(
-            hass,
-            DOMAIN,
-            platform,
-            {CONF_NAME: DOMAIN, "config": "None"},
-            {"extension": _extension}
+    await asyncio.gather(
+        *(
+            hass.config_entries.async_forward_entry_setup(entry, platform)
+            for platform in PLATFORMS
         )
+    )
 
 def setup(hass, config):
     """Your controller/hub specific code."""
