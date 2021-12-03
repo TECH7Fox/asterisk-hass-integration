@@ -6,10 +6,10 @@ from typing import Any
 import asterisk.manager
 import voluptuous as vol
 
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME, CONF_NAME
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.discovery import async_load_platform
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.discovery import load_platform
 
 from .const import DOMAIN
 
@@ -43,7 +43,17 @@ def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
     _extension = event.get_header("ObjectName")
     hass.data[DOMAIN][entry.entry_id] = _extension
-    hass.async_add_job(hass.config_entries.async_forward_entry_setup(entry, 'sensor'))
+    #hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    for platform in PLATFORMS:
+        hass.async_create_task(
+            async_load_platform(
+                hass,
+                DOMAIN,
+                platform,
+                {CONF_NAME: DOMAIN, "config": {"extension": _extension}},
+                {"extension": _extension},
+            )
+        )
 
 def setup(hass, config):
     """Your controller/hub specific code."""
