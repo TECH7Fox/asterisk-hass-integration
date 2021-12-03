@@ -9,6 +9,7 @@ import voluptuous as vol
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.helpers import device_registry as dr
 
 from .const import DOMAIN
 
@@ -42,6 +43,17 @@ def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
     _extension = event.get_header("ObjectName")
     hass.data[DOMAIN][entry.entry_id] = _extension
+
+    device_registry = dr.async_get(hass)
+
+    device = device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, f"{entry.entry_id}_{_extension}")},
+        manufacturer="Asterisk",
+        model="SIP",
+        name=f"Asterisk Extension {_extension}",
+    )
+
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setup(
             entry, "sensor"
