@@ -42,6 +42,7 @@ def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
     _extension = event.get_header("ObjectName")
+    entry.async_set_unique_id(f"{entry.entry_id}_{_extension}")
     hass.data[DOMAIN][entry.entry_id] = _extension
 
     device_registry = dr.async_get(hass)
