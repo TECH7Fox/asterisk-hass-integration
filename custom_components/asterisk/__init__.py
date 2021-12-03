@@ -45,15 +45,14 @@ def handle_asterisk_event(event, manager, hass, entry):
     hass.data[DOMAIN][entry.entry_id] = _extension
     #hass.config_entries.async_setup_platforms(entry, PLATFORMS)
     for platform in PLATFORMS:
-        hass.async_create_task(
-            async_load_platform(
-                hass,
-                DOMAIN,
-                platform,
-                {CONF_NAME: DOMAIN, "config": {"extension": _extension}},
-                {"extension": _extension},
-            )
-        )
+        _LOGGER.error("Setting up sensor")
+        _LOGGER.error("Load_platform: " + async_load_platform(
+            hass,
+            DOMAIN,
+            platform,
+            {CONF_NAME: DOMAIN, "config": {"extension": _extension}},
+            {"extension": _extension},
+        ))
 
 def setup(hass, config):
     """Your controller/hub specific code."""
