@@ -10,6 +10,7 @@ import asyncio
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME, CONF_NAME
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.discovery import async_load_platform
+from homeassistant.helpers import device_registry as dr
 from homeassistant.config_entries import ConfigEntry
 
 from .const import DOMAIN
@@ -45,12 +46,19 @@ async def handle_asterisk_event(event, manager, hass, entry):
     _extension = event.get_header("ObjectName")
     hass.data[DOMAIN][entry.entry_id] = _extension
     #hass.config_entries.async_setup_platforms(entry, PLATFORMS)
-    await asyncio.gather(
-        *(
-            hass.config_entries.async_forward_entry_setup(entry, platform)
-            for platform in PLATFORMS
-        )
+    device_registry = dr.async_get(hass)
+
+    device = device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, f"{entry.entry_id}_{_extension}")},
+        manufacturer="Asterisk",
+        model="Asterisk Extension",
+        name=f"Asterisk Extension {_extension}",
     )
+
+    for platform in PLATFORMS:
+        hass.config_entries.async_forward_entry_setup(entry, platform) # MAKE NEW entry WITH ONLY EXTENSION DATA AND SAME ENTRY_ID
+
 
 def setup(hass, config):
     """Your controller/hub specific code."""
