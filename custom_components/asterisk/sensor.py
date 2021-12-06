@@ -22,7 +22,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     for device in devices:
         entities.append(AsteriskExtension(hass, device, entry.entry_id))
         _LOGGER.warning(f"Setting up asterisk extension device for extension {device}")
-        
+
     async_add_entities(entities, True)
 
 class AsteriskExtension(SensorEntity):
@@ -31,7 +31,7 @@ class AsteriskExtension(SensorEntity):
     def __init__(self, hass, extension, entry_id):
         """Setting up extension."""
         self._hass = hass
-        self._astmanager = hass.data[DOMAIN]["manager"]
+        self._astmanager = hass.data[DOMAIN][entry_id]["manager"]
         self._extension = extension
         self._state = "Unknown"
         self._unique_id = f"{entry_id}_{extension}"
