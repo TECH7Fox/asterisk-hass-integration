@@ -115,7 +115,7 @@ async def async_setup_entry(hass, entry):
         manager.sippeers()
 
         hass.data[DOMAIN][entry.entry_id] = []
-        hass.data[DOMAIN][entry.entry_id]["devices"] = []
+        hass.data[DOMAIN][entry.entry_id]["devices"] = {}
 
         sleep(5)
         
