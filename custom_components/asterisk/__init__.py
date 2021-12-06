@@ -114,7 +114,7 @@ async def async_setup_entry(hass, entry):
         manager.register_event("PeerEntry", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
         manager.sippeers()
 
-        hass.data[DOMAIN][entry.entry_id] = []
+        hass.data[DOMAIN][entry.entry_id] = {}
         hass.data[DOMAIN][entry.entry_id]["devices"] = {}
 
         sleep(5)
