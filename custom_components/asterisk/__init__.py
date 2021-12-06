@@ -45,7 +45,7 @@ def handle_asterisk_event(event, manager, hass, entry):
     _extension = event.get_header("ObjectName")
     # entry.async_set_unique_id(f"{entry.entry_id}_{_extension}")
 
-    hass.data[DOMAIN][entry.entry_id]["devices"] = []
+
     hass.data[DOMAIN][entry.entry_id]["devices"].append(_extension)
     # device_registry = dr.async_get(hass)
 
@@ -113,6 +113,9 @@ async def async_setup_entry(hass, entry):
         _LOGGER.info("Successfully connected to Asterisk server")
         manager.register_event("PeerEntry", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
         manager.sippeers()
+
+        hass.data[DOMAIN][entry.entry_id] = []
+        hass.data[DOMAIN][entry.entry_id]["devices"] = []
 
         sleep(5)
         
