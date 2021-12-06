@@ -2,6 +2,7 @@
 import logging
 
 import voluptuous as vol
+import json
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 import homeassistant.helpers.config_validation as cv
@@ -18,12 +19,62 @@ async def async_setup_entry(hass, entry, async_add_entities):
     """Setting up every extension."""
     devices = hass.data[DOMAIN][entry.entry_id]["devices"]
 
-    entities = []
+    entities = [AsteriskServer(hass, entry.entry_id)]
     for device in devices:
         entities.append(AsteriskExtension(hass, device, entry.entry_id))
-        _LOGGER.warning(f"Setting up asterisk extension device for extension {device}")
+        _LOGGER.info(f"Setting up asterisk extension device for extension {device}")
 
     async_add_entities(entities, True)
+
+class AsteriskServer(SensorEntity):
+    """Entity for a Asterisk server."""
+
+    def __init__(self, hass, entry_id):
+        """Setting up extension."""
+        self._hass = hass
+        self._astmanager = hass.data[DOMAIN][entry_id]["manager"]
+        self._state = "Unknown"
+        self._unique_id = f"{entry_id}"
+        self._astmanager.register_event("Status", self.handle_asterisk_event)
+        _LOGGER.info("Asterisk server device initialized")
+
+    def handle_asterisk_event(self, event, astmanager):
+        """Handle events."""
+        extension = event.get_header("Exten")
+        status = event.get_header("StatusText")
+        if extension == self._extension:
+            _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
+            self._state = status
+            self.hass.async_add_job(self.async_update_ha_state())
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique id for this instance."""
+        return self._unique_id
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return {
+            "identifiers": {(DOMAIN, self._unique_id)},
+            "name": self.name,
+            "manufacturer": "Asterisk",
+            "model": "Server", #self._tech
+        }
+
+    @property
+    def name(self):
+        """Extension name."""
+        return f"Asterisk Server"
+
+    @property
+    def state(self):
+        """Extension state."""
+        return self._state
+
+    def update(self):
+        """Update."""
+        self._state = self._astmanager.status()
+        # connected = self._astmanager.connected()
 
 class AsteriskExtension(SensorEntity):
     """Entity for a Asterisk extension."""

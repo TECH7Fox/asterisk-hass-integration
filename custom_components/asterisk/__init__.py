@@ -41,7 +41,6 @@ _LOGGER = logging.getLogger(__name__)
 
 def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
-    _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
     _extension = event.get_header("ObjectName")
     # entry.async_set_unique_id(f"{entry.entry_id}_{_extension}")
 
@@ -61,36 +60,6 @@ def handle_asterisk_event(event, manager, hass, entry):
 
     #hass.async_setup_platforms(entry, PLATFORMS)
 
-def setup(hass, config):
-    """Your controller/hub specific code."""
-
-    if DOMAIN not in config:
-        # There is an entry and nothing in configuration.yaml
-        _LOGGER.info("no Asterisk config in configuration.yaml")
-        return True
-
-    _LOGGER.error("SETTING UP FROM SETUP")
-
-    manager = asterisk.manager.Manager()
-
-    host = config[DOMAIN].get(CONF_HOST, DEFAULT_HOST)
-    port = config[DOMAIN].get(CONF_PORT, DEFAULT_PORT)
-    username = config[DOMAIN].get(CONF_USERNAME, DEFAULT_USERNAME)
-    password = config[DOMAIN].get(CONF_PASSWORD, DEFAULT_PASSWORD)
-    _LOGGER.info("Asterisk component is now set up")
-    try:
-        manager.connect(host, port)
-        manager.login(username, password)
-        hass.data.setdefault(DOMAIN, {})
-        hass.data[DOMAIN]["manager"] = manager
-        _LOGGER.info("Successfully connected to Asterisk server")
-        manager.register_event("PeerEntry", handle_asterisk_event)
-        manager.sippeers()
-        return True
-    except asterisk.manager.ManagerException as exception:
-        _LOGGER.error("Error connecting to Asterisk: %s", exception.args[1])
-        _LOGGER.error(f"Host: {host}, Port: {port}, Username: {username}, Password: {password}")
-        return False
 
 async def async_setup_entry(hass, entry):
     """Your controller/hub specific code."""
