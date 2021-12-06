@@ -51,7 +51,7 @@ class AsteriskConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_HOST): cv.string,
-                    vol.Required(CONF_PORT): cv.port,
+                    vol.Optional(CONF_PORT, default="5038"): str,
                     vol.Required(CONF_USERNAME): str,
                     vol.Required(CONF_PASSWORD): str,
                 }
