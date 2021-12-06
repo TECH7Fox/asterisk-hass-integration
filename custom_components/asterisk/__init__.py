@@ -5,6 +5,7 @@ from typing import Any
 
 import asterisk.manager
 import voluptuous as vol
+import time.sleep as sleep
 
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 import homeassistant.helpers.config_validation as cv
@@ -42,24 +43,23 @@ def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
     _LOGGER.error("ObjectName: " + event.get_header("ObjectName"))
     _extension = event.get_header("ObjectName")
-    entry.async_set_unique_id(f"{entry.entry_id}_{_extension}")
-    hass.data[DOMAIN][entry.entry_id] = _extension
+    # entry.async_set_unique_id(f"{entry.entry_id}_{_extension}")
 
-    device_registry = dr.async_get(hass)
+    hass.data[DOMAIN][entry.entry_id]["devices"] = []
+    hass.data[DOMAIN][entry.entry_id]["devices"].append(_extension)
+    # device_registry = dr.async_get(hass)
 
-    device = device_registry.async_get_or_create(
-        config_entry_id=entry.entry_id,
-        identifiers={(DOMAIN, f"{entry.entry_id}_{_extension}")},
-        manufacturer="Asterisk",
-        model="SIP",
-        name=f"Asterisk Extension {_extension}",
-    )
+    # device = device_registry.async_get_or_create(
+        # config_entry_id=entry.entry_id,
+        # identifiers={(DOMAIN, f"{entry.entry_id}_{_extension}")},
+        # manufacturer="Asterisk",
+        # model="SIP",
+        # name=f"Asterisk Extension {_extension}",
+    # )
 
-    hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(
-            entry, "sensor"
-        )
-    )
+
+
+    #hass.async_setup_platforms(entry, PLATFORMS)
 
 def setup(hass, config):
     """Your controller/hub specific code."""
@@ -113,6 +113,15 @@ async def async_setup_entry(hass, entry):
         _LOGGER.info("Successfully connected to Asterisk server")
         manager.register_event("PeerEntry", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
         manager.sippeers()
+
+        sleep(5)
+        
+        hass.async_create_task(
+            hass.config_entries.async_forward_entry_setup(
+                entry, "sensor"
+            )
+        )
+
         return True
     except asterisk.manager.ManagerException as exception:
         _LOGGER.error("Error connecting to Asterisk: %s", exception.args[1])

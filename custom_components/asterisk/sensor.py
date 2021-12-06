@@ -14,20 +14,16 @@ DEPENDENCIES = ["asterisk"]
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({vol.Required("extension"): cv.string})
 
-
-def setup_platform(hass, config, add_devices, discovery_info=None):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Setting up every extension."""
-    extension = config.get("extension")
-    _LOGGER.info(f"Setting up asterisk extension device for extension {extension}")
-    add_devices([AsteriskExtension(hass, extension)], True)
-    #await async_setup_platform(hass, {}, async_add_entities)
+    devices = hass.data[DOMAIN][entry.entry_id]["devices"]
 
-async def async_setup_entry(hass, entry, async_add_devices):
-    """Setting up every extension."""
-    extension = hass.data[DOMAIN][entry.entry_id]
-    entry_id = entry.entry_id
-    _LOGGER.warning(f"Setting up asterisk extension device for extension {extension}")
-    async_add_devices([AsteriskExtension(hass, extension, entry_id)], True)
+    entities = []
+    for device in devices:
+        entities.append(AsteriskExtension(hass, device, entry.entry_id))
+        _LOGGER.warning(f"Setting up asterisk extension device for extension {device}")
+        
+    async_add_entities(entities, True)
 
 class AsteriskExtension(SensorEntity):
     """Entity for a Asterisk extension."""
