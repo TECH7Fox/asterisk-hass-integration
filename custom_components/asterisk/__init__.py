@@ -5,7 +5,7 @@ from typing import Any
 
 import asterisk.manager
 import voluptuous as vol
-import time.sleep as sleep
+from time import sleep
 
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 import homeassistant.helpers.config_validation as cv

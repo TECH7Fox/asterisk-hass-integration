@@ -4,7 +4,7 @@
   "version": "0.1.2",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/asterisk",
-  "requirements": ["pyst2==0.5.1", "time"],
+  "requirements": ["pyst2==0.5.1"],
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
