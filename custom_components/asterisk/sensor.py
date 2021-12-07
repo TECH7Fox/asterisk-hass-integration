@@ -35,6 +35,7 @@ class AsteriskServer(SensorEntity):
         self._hass = hass
         self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
         self._state = "Unknown"
+        self._entry = entry
         self._unique_id = f"{entry.entry_id}"
         self._astmanager.register_event("Status", self.handle_asterisk_event)
         _LOGGER.info("Asterisk server device initialized")
