@@ -41,24 +41,13 @@ _LOGGER = logging.getLogger(__name__)
 
 def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
-    _extension = event.get_header("ObjectName")
-    # entry.async_set_unique_id(f"{entry.entry_id}_{_extension}")
 
+    device = {
+        "extension": event.get_header("ObjectName"),
+        "tech": event.get_header("Channeltype")
+    }
 
-    hass.data[DOMAIN][entry.entry_id]["devices"].append(_extension)
-    # device_registry = dr.async_get(hass)
-
-    # device = device_registry.async_get_or_create(
-        # config_entry_id=entry.entry_id,
-        # identifiers={(DOMAIN, f"{entry.entry_id}_{_extension}")},
-        # manufacturer="Asterisk",
-        # model="SIP",
-        # name=f"Asterisk Extension {_extension}",
-    # )
-
-
-
-    #hass.async_setup_platforms(entry, PLATFORMS)
+    hass.data[DOMAIN][entry.entry_id]["devices"].append(device)
 
 
 async def async_setup_entry(hass, entry):

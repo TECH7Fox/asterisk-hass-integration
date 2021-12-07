@@ -22,8 +22,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     entities = [AsteriskServer(hass, entry)]
     for device in devices:
-        entities.append(AsteriskExtension(hass, device, entry))
-        _LOGGER.info(f"Setting up asterisk extension device for extension {device}")
+        entities.append(AsteriskExtension(hass, device["extension"], entry))
+        _LOGGER.info(f"Setting up asterisk extension device for extension {device['tech']}{device['extension']}")
 
     async_add_entities(entities, True)
 
@@ -62,7 +62,7 @@ class AsteriskServer(SensorEntity):
             "name": self.name,
             "manufacturer": "Asterisk",
             "model": "Server", #self._tech
-            "configuration_url": f"{self._entry.data[CONF_HOST]}:80",
+            "configuration_url": f"http://{self._entry.data[CONF_HOST]}:80",
             "sw_version": SW_VERSION,
         }
 
