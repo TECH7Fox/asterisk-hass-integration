@@ -36,7 +36,7 @@ class AsteriskServer(SensorEntity):
         self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
         self._state = "Unknown"
         self._entry = entry
-        self._unique_id = f"{entry.entry_id}"
+        self._unique_id = entry.entry_id
         self._astmanager.register_event("Status", self.handle_asterisk_event)
         _LOGGER.info("Asterisk server device initialized")
 
@@ -61,8 +61,8 @@ class AsteriskServer(SensorEntity):
             "identifiers": {(DOMAIN, self._unique_id)},
             "name": self.name,
             "manufacturer": "Asterisk",
-            "model": "Server", #self._tech
-            "configuration_url": f"http://{self._entry.data[CONF_HOST]}:80",
+            "model": "Server",
+            "configuration_url": f"http://{self._entry.data[CONF_HOST]}",
             "sw_version": SW_VERSION,
         }
 
@@ -97,6 +97,8 @@ class AsteriskExtension(SensorEntity):
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
+        _LOGGER.error("event.headers extension: " + json.dumps(event.headers))
+
         extension = event.get_header("Exten")
         status = event.get_header("StatusText")
         tech = event.get_header("Channeltype")
@@ -133,7 +135,15 @@ class AsteriskExtension(SensorEntity):
         """Extension state."""
         return self._state
 
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return (
+            super().available
+            and self.coordinator.data["data"].get(self._description.key) is not None
+        )
+
     def update(self):
         """Update."""
         result = self._astmanager.extension_state(self._extension, "")
-        self._state = result.get_header("StatusText")
+        #self._state = result.get_header("StatusText")

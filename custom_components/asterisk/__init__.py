@@ -53,7 +53,14 @@ def handle_asterisk_event(event, manager, hass, entry):
 async def async_setup_entry(hass, entry):
     """Your controller/hub specific code."""
 
-    _LOGGER.error("SETTING UP FROM ENTRY")
+    def handle_hangup(call):
+        "Handle the service call."
+
+        extension = call.data.get("extension")
+
+        hass.data[DOMAIN][entry.entry_id]["manager"].hangup(extension)
+
+    hass.services.register(DOMAIN, "hangup", handle_hangup)
 
     manager = asterisk.manager.Manager()
 
