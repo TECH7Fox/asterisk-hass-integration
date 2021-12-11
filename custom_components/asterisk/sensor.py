@@ -104,6 +104,8 @@ class AsteriskExtension(SensorEntity):
         tech = event.get_header("Channeltype")
         if extension == self._extension:
             _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
+            if (status == "Unknown"):
+                status = "Idle"
             self._state = status
             self._tech = tech
             if (status == "InUse"):
