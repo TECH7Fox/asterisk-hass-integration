@@ -97,8 +97,6 @@ class AsteriskExtension(SensorEntity):
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
-        _LOGGER.error("event.headers extension: " + json.dumps(event.headers))
-
         extension = event.get_header("Exten")
         status = event.get_header("StatusText")
         tech = event.get_header("Channeltype")
@@ -106,12 +104,7 @@ class AsteriskExtension(SensorEntity):
             _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
             self._state = status
             self._tech = tech
-            if (status == "InUse"):
-                event_data = {
-                    "device_id": self.unique_id,
-                    "type": "extension_inuse",
-                }
-                self._hass.bus.async_fire("asterisk_event", event_data)
+            _LOGGER.warning(f"Channeltype: {tech}") # temp
             self.hass.async_add_job(self.async_update_ha_state())
 
     @property
@@ -140,15 +133,7 @@ class AsteriskExtension(SensorEntity):
         """Extension state."""
         return self._state
 
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return (
-            super().available
-            and self.coordinator.data["data"].get(self._description.key) is not None
-        )
-
     def update(self):
         """Update."""
         result = self._astmanager.extension_state(self._extension, "")
-        _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
+        self._state = result.get_header("StatusText")
