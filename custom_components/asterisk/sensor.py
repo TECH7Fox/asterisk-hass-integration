@@ -106,7 +106,12 @@ class AsteriskExtension(SensorEntity):
             _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
             self._state = status
             self._tech = tech
-            _LOGGER.warning(f"Channeltype: {tech}") # temp
+            if (status == "InUse"):
+                event_data = {
+                    "device_id": self.unique_id,
+                    "type": "extension_inuse",
+                }
+                self._hass.bus.async_fire("asterisk_event", event_data)
             self.hass.async_add_job(self.async_update_ha_state())
 
     @property
@@ -146,4 +151,4 @@ class AsteriskExtension(SensorEntity):
     def update(self):
         """Update."""
         result = self._astmanager.extension_state(self._extension, "")
-        #self._state = result.get_header("StatusText")
+        _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
