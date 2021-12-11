@@ -37,18 +37,7 @@ class AsteriskServer(SensorEntity):
         self._state = "Unknown"
         self._entry = entry
         self._unique_id = entry.entry_id
-        self._astmanager.register_event("Status", self.handle_asterisk_event)
         _LOGGER.info("Asterisk server device initialized")
-
-    def handle_asterisk_event(self, event, astmanager):
-        """Handle events."""
-        extension = event.get_header("Exten")
-        status = event.get_header("StatusText")
-        if extension == self._extension:
-            _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
-            self._state = status
-            self.hass.async_add_job(self.async_update_ha_state())
-            _LOGGER.warning(f"Connected: {self._astmanager.connected()}")
 
     @property
     def unique_id(self) -> str:
@@ -79,6 +68,7 @@ class AsteriskServer(SensorEntity):
     def update(self):
         """Update."""
         self._state = self._astmanager.status()
+        _LOGGER.warning(f"Connected: {self._astmanager.connected()}")
         # connected = self._astmanager.connected()
 
 class AsteriskExtension(SensorEntity):
@@ -97,7 +87,7 @@ class AsteriskExtension(SensorEntity):
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
-        _LOGGER.error("event.headers extension: " + json.dumps(event.headers))
+        _LOGGER.error("extension update: " + json.dumps(event.headers))
 
         extension = event.get_header("Exten")
         status = event.get_header("StatusText")
