@@ -22411,7 +22411,7 @@
                   <ha-card>
                   <audio id="remoteAudio" style="display:none" controls></audio>
                   <div class="wrapper">
-                  <h2 style="text-align: center; padding-top: 15px; margin-top: 0;" id="name">Idle</h2>
+                  <h2 style="text-align: center; padding-top: 15px; margin-top: 0;" id="name">New Card</h2>
                   <span style="float:left" id="state">Online</span>
                   <span style="float:right" id="time">00:00</span>
                   <br><hr style="margin-bottom: 12px;">
