@@ -105,13 +105,13 @@ async def async_setup_entry(hass, entry):
             )
         )
 
-        url_path = '/sipjs-card/sipjs-card.js'
+        url_path = '/asterisk/sipjs-card.js'
         path = Path(__file__).parent / 'www/sipjs-card.js'
         register_static_path(hass.http.app, url_path, path)
 
         resources: ResourceStorageCollection = hass.data['lovelace']['resources']
         await resources.async_get_info()
-        await resources.async_create_item({'res_type': 'module', 'url': '/sipjs-card/sipjs-card.js'})
+        await resources.async_create_item({'res_type': 'module', 'url': '/asterisk/sipjs-card.js'})
 
         return True
     except asterisk.manager.ManagerException as exception:
