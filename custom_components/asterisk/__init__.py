@@ -117,7 +117,7 @@ async def async_setup_entry(hass, entry):
         except OSError as error:
             _LOGGER.warning(error)
 
-        copyfile('www/sipjs-card.js', '/config/www/asterisk/sipjs-card.js')
+        copyfile('www/sipjs-card.js', '/config/www/asterisk')
 
         url_path = '/asterisk/sipjs-card.js'
         path = Path(__file__).parent / 'www/sipjs-card.js'
