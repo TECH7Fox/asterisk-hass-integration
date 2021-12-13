@@ -22428,14 +22428,14 @@
                   </mwc-button>
                   <br><br>
                   ${this.config.entities.map(ent => {
-                    const stateObj = this.hass.states[ent]; // NEXTUP MAKE A INTEGRATION TO TEST WITH, UPDATE ALL THE SPAN TEXT, IMPROVE CSS (ADD SOUND WAVE ANIMATIONS?) AND ADD VIDEO
+                    const stateObj = this.hass.states[ent.entity]; // NEXTUP MAKE A INTEGRATION TO TEST WITH, UPDATE ALL THE SPAN TEXT, IMPROVE CSS (ADD SOUND WAVE ANIMATIONS?) AND ADD VIDEO
                     if (!stateObj) {
                         return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
-                            <div class="not-found">Entity ${ent} not found.</div>
+                            <div class="not-found">Entity ${ent.entity} not found.</div>
                         `;
                     }
                     var isMe = false;
-                    if (this.hass.user.name.toLowerCase() == stateObj.attributes.user.toLowerCase()) {
+                    if (this.hass.user.name.toLowerCase() == ent.user.name.toLowerCase()) {
                         isMe = true;
                     }
                     return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
@@ -22461,7 +22461,7 @@
             `;
         }
         firstUpdated() {
-            this.connect();
+            //this.connect();
         }
         setConfig(config) {
             if (!config.server) {
@@ -22493,7 +22493,7 @@
             var authorizationUsername = "";
             var authorizationPassword = "";
             this.config.entities.map(ent => {
-                var client = this.hass.states[ent];
+                var client = this.hass.states[ent.entity];
                 if (this.hass.user.name.toLowerCase() == client.attributes.user.toLowerCase()) {
                     aor = "sip:" + client.attributes.extension + "@" + this.config.server;
                     authorizationUsername = client.attributes.extension;
