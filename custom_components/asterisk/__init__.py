@@ -11,6 +11,8 @@ from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNA
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers import device_registry as dr
+from aiohttp import web
+from pathlib import Path
 
 from .const import DOMAIN
 
@@ -38,6 +40,18 @@ CONFIG_SCHEMA = vol.Schema(
 PLATFORMS = ["sensor"]
 
 _LOGGER = logging.getLogger(__name__)
+
+def register_static_path(app: web.Application, url_path: str, path):
+    """Register static path with CORS for Chromecast"""
+
+    async def serve_file(request):
+        return web.FileResponse(path)
+
+    route = app.router.add_route("GET", url_path, serve_file)
+    if 'allow_all_cors' in app:
+        app['allow_all_cors'](route)
+    elif 'allow_cors' in app:
+        app['allow_cors'](route)
 
 def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
@@ -88,6 +102,10 @@ async def async_setup_entry(hass, entry):
                 entry, "sensor"
             )
         )
+
+        url_path = '/sipjs-card/sipjs-card.js'
+        path = Path(__file__).parent / 'www/sipjs-card.js'
+        register_static_path(hass.http.app, url_path, path)
 
         return True
     except asterisk.manager.ManagerException as exception:
