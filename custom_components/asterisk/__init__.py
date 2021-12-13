@@ -6,6 +6,7 @@ from typing import Any
 import asterisk.manager
 import voluptuous as vol
 from time import sleep
+import os
 
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 import homeassistant.helpers.config_validation as cv
@@ -105,8 +106,18 @@ async def async_setup_entry(hass, entry):
             )
         )
 
-        # make www folder if there is no www folder.
-        copyfile("www/sipjs-card.js", "/config/www/asterisk/sipjs-card.js")
+        # make folders if they don't exists.
+        try:
+            os.mkdir('/config/www')
+        except OSError as error:
+            _LOGGER.warning(error)
+
+        try:
+            os.mkdir('/config/www/asterisk')
+        except OSError as error:
+            _LOGGER.warning(error)
+
+        copyfile('www/sipjs-card.js', '/config/www/asterisk/sipjs-card.js')
 
         url_path = '/asterisk/sipjs-card.js'
         path = Path(__file__).parent / 'www/sipjs-card.js'
