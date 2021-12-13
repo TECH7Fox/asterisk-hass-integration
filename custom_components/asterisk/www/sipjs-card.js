@@ -22477,17 +22477,18 @@
             return this.config.entities.length + 2;
         }
         async _click(state) {
-            await this.simpleUser.call("sip:" + state.attributes.extension + "@" + this.config.server);
+            // await this.simpleUser.call("sip:" + state.attributes.extension + "@" + this.config.server);
         }
         async _answer() {
-            await this.simpleUser.answer();
+            // await this.simpleUser.answer();
         }
         async _hangup() {
-            await this.simpleUser.hangup();
+            // await this.simpleUser.hangup();
         }
         async _sendDTMF(signal) {
-            await this.simpleUser.sendDTMF(signal);
+            // await this.simpleUser.sendDTMF(signal);
         }
+        /*
         async connect() {
             var aor = "";
             var authorizationUsername = "";
@@ -22530,6 +22531,7 @@
                 }
             };
         }
+        */
     }
     customElements.define('sipjs-client-card-addon', SIPjsClientCard);
     
