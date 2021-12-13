@@ -22441,9 +22441,9 @@
                     return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
                         <div class="flex">
                         <state-badge .stateObj="${stateObj}" icon></state-badge>
-                        <div class="info ${isMe ? "good" : ""}">${stateObj.attributes.user}</div>
-                        ${isMe ? lit_element__WEBPACK_IMPORTED_MODULE_0__.html `<mwc-button disabled .hass=${this.hass} .config=${this.config} @click="${() => this._click(stateObj)}">CALL</mwc-button>` 
-                            : lit_element__WEBPACK_IMPORTED_MODULE_0__.html `<mwc-button .hass=${this.hass} .config=${this.config} @click="${() => this._click(stateObj)}">CALL</mwc-button>`}
+                        <div class="info ${isMe ? "good" : ""}">${ent.person}</div>
+                        ${isMe ? lit_element__WEBPACK_IMPORTED_MODULE_0__.html `<mwc-button disabled .hass=${this.hass} .config=${this.config} @click="${() => this._click(ent)}">CALL</mwc-button>` 
+                            : lit_element__WEBPACK_IMPORTED_MODULE_0__.html `<mwc-button .hass=${this.hass} .config=${this.config} @click="${() => this._click(ent)}">CALL</mwc-button>`}
                         </div>
                     `;
                   })}
