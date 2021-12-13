@@ -13,6 +13,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers import device_registry as dr
 from aiohttp import web
 from pathlib import Path
+from homeassistant.helpers.typing import HomeAssistantType
+from homeassistant.components.lovelace.resources import ResourceStorageCollection
 
 from .const import DOMAIN
 
@@ -106,6 +108,10 @@ async def async_setup_entry(hass, entry):
         url_path = '/sipjs-card/sipjs-card.js'
         path = Path(__file__).parent / 'www/sipjs-card.js'
         register_static_path(hass.http.app, url_path, path)
+
+        resources: ResourceStorageCollection = hass.data['lovelace']['resources']
+        await resources.async_get_info()
+        await resources.async_create_item({'res_type': 'module', 'url': '/sipjs-card/sipjs-card.js'})
 
         return True
     except asterisk.manager.ManagerException as exception:
