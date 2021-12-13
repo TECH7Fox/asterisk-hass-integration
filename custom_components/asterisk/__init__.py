@@ -16,7 +16,7 @@ from aiohttp import web
 from pathlib import Path
 from homeassistant.helpers.typing import HomeAssistantType
 from homeassistant.components.lovelace.resources import ResourceStorageCollection
-from shutil import copy, copyfile
+from shutil import Error, copy, copyfile
 from .const import DOMAIN
 
 DEFAULT_HOST = "127.0.0.1"
@@ -118,7 +118,11 @@ async def async_setup_entry(hass, entry):
         except OSError as error:
             _LOGGER.warning(error)
 
-        copyfile('/config/custom_components/asterisk/www/sipjs-card.js', '/config/www/asterisk/sipjs-card.js')
+        try:
+            copyfile('/config/custom_components/asterisk/www/sipjs-card.js', '/config/www/asterisk/sipjs-card.js')
+        except IOError as error:
+            _LOGGER.error(error)
+            
 
         url_path = '/asterisk/sipjs-card.js'
         path = Path(__file__).parent / 'www/sipjs-card.js'
