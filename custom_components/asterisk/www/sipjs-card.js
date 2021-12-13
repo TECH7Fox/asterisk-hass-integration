@@ -22435,7 +22435,7 @@
                         `;
                     }
                     var isMe = false;
-                    if (this.hass.user.name.toLowerCase() == ent.user.name.toLowerCase()) {
+                    if (this.hass.user.name.toLowerCase() == ent.user) { //name.toLowerCase()) {
                         isMe = true;
                     }
                     return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
