@@ -57,7 +57,7 @@ def register_static_path(app: web.Application, url_path: str, path):
         app['allow_cors'](route)
 
 def handle_asterisk_event(event, manager, hass, entry):
-    _LOGGER.error("event.headers: " + json.dumps(event.headers))
+    # _LOGGER.error("event.headers: " + json.dumps(event.headers))
 
     device = {
         "extension": event.get_header("ObjectName"),
@@ -117,6 +117,7 @@ async def async_setup_entry(hass, entry):
             os.mkdir('/config/www/asterisk')
         except OSError as error:
             _LOGGER.warning(error)
+            
 
         try:
             copyfile('/config/custom_components/asterisk/www/sipjs-card.js', '/config/www/asterisk/sipjs-card.js')

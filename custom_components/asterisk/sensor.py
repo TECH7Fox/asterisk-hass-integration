@@ -22,7 +22,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     entities = [AsteriskServer(hass, entry)]
     for device in devices:
-        entities.append(AsteriskExtension(hass, device["extension"], entry))
+        entities.append(AsteriskExtension(hass, device["status"], device["extension"], device["tech"], entry))
         _LOGGER.info(f"Setting up asterisk extension device for extension {device['tech']}{device['extension']}")
 
     async_add_entities(entities, True)
@@ -68,18 +68,22 @@ class AsteriskServer(SensorEntity):
     def update(self):
         """Update."""
         self._state = self._astmanager.status()
-        _LOGGER.warning(f"Connected: {self._astmanager.connected()}")
+        # _LOGGER.warning(f"Connected: {self._astmanager.connected()}")
         # connected = self._astmanager.connected()
 
 class AsteriskExtension(SensorEntity):
     """Entity for a Asterisk extension."""
 
-    def __init__(self, hass, extension, entry):
+    def __init__(self, hass, status, extension, tech, entry):
         """Setting up extension."""
         self._hass = hass
         self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
         self._extension = extension
-        self._state = "Unknown"
+        if (status != "Unknown"):
+            self._state = "Idle"
+        else:
+            self._state = "Unknown"
+        self._tech = tech
         self._entry = entry
         self._unique_id = f"{entry.entry_id}_{extension}"
         self._astmanager.register_event("ExtensionStatus", self.handle_asterisk_event)
@@ -87,14 +91,14 @@ class AsteriskExtension(SensorEntity):
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
-        _LOGGER.error("extension update: " + json.dumps(event.headers))
+        # _LOGGER.error("extension update: " + json.dumps(event.headers))
 
         extension = event.get_header("Exten")
         status = event.get_header("StatusText")
         tech = event.get_header("Channeltype")
         if extension == self._extension:
             _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
-            if (status == "Unknown"):
+            if (status == "Unknown"): # Fix for Asterisk bug
                 status = "Idle"
             self._state = status
             self._tech = tech
@@ -117,7 +121,7 @@ class AsteriskExtension(SensorEntity):
             "identifiers": {(DOMAIN, self._unique_id)},
             "name": self.name,
             "manufacturer": "Asterisk",
-            "model": "SIP", #self._tech,
+            "model": self._tech,
             "sw_version": SW_VERSION,
             "via_device": (DOMAIN, self._entry.entry_id),
         }
@@ -134,5 +138,5 @@ class AsteriskExtension(SensorEntity):
 
     def update(self):
         """Update."""
-        result = self._astmanager.extension_state(self._extension, "")
-        _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
+        self._astmanager.extension_state(self._extension, "")
+        # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp

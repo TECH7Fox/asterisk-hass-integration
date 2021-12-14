@@ -22550,7 +22550,7 @@
             };
         }
     }
-    customElements.define('sipjs-client-card-addon', SIPjsClientCard);
+    customElements.define('sipjs-card', SIPjsClientCard);
     
     })();
     
