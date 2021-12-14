@@ -22441,7 +22441,7 @@
                     return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
                         <div class="flex">
                         <state-badge .stateObj="${stateObj}" icon></state-badge>
-                        <div class="info ${isMe ? "good" : ""}">${ent.person}</div>
+                        <div class="info ${isMe ? "good" : ""}">${this.hass.states[ent.person].attributes.id}</div>
                         ${isMe ? lit_element__WEBPACK_IMPORTED_MODULE_0__.html `<mwc-button disabled .hass=${this.hass} .config=${this.config} @click="${() => this._click(ent)}">CALL</mwc-button>` 
                             : lit_element__WEBPACK_IMPORTED_MODULE_0__.html `<mwc-button .hass=${this.hass} .config=${this.config} @click="${() => this._click(ent)}">CALL</mwc-button>`}
                         </div>
@@ -22518,7 +22518,12 @@
                     authorizationUsername,
                 }
             };
-            this.simpleUser = new _src_platform_web__WEBPACK_IMPORTED_MODULE_1__.SimpleUser("wss://" + this.config.server + ":8089/ws", options);
+            if (this.config.port) {
+                port = this.config.port;
+            } else {
+                port = "8089";
+            }
+            this.simpleUser = new _src_platform_web__WEBPACK_IMPORTED_MODULE_1__.SimpleUser("wss://" + this.config.server + ":" + port + "/ws", options);
             
             await this.simpleUser.connect();
             this.stateElement.innerHTML = "connected";
