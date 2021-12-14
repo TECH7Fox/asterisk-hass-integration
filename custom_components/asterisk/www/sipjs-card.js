@@ -22412,7 +22412,7 @@
                   <audio id="remoteAudio" style="display:none" controls></audio>
                   <div class="wrapper">
                   <h2 style="text-align: center; padding-top: 15px; margin-top: 0;" id="name">Idle</h2>
-                  <span style="float:left" id="state">Connecting...</span>
+                  <span style="float:left" id="state">Connecting</span>
                   <span style="float:right" id="time">00:00</span>
                   <br><hr style="margin-bottom: 12px;">
                   <mwc-button outlined @click=${() => this._answer()} style="float: right;">
@@ -22477,7 +22477,7 @@
             return this.config.entities.length + 2;
         }
         async _click(ent) {
-            nameElement.innerHTML = "Calling..."
+            this.nameElement.innerHTML = "Calling..."
             await this.simpleUser.call("sip:" + ent.entity.match(/\d/g).join("") + "@" + this.config.server);
         }
         async _answer() {
@@ -22490,9 +22490,9 @@
             await this.simpleUser.sendDTMF(signal);
         }
         async connect() {
-            let timerElement = this.querySelector('#time');
-            let nameElement = this.querySelector('#name');
-            let stateElement = this.querySelector('#state');
+            this.timerElement = this.querySelector('#time');
+            this.nameElement = this.querySelector('#name');
+            this.stateElement = this.querySelector('#state');
 
             var aor = "";
             var authorizationUsername = "";
@@ -22519,11 +22519,12 @@
                 }
             };
             this.simpleUser = new _src_platform_web__WEBPACK_IMPORTED_MODULE_1__.SimpleUser("wss://" + this.config.server + ":8089/ws", options);
+            
             await this.simpleUser.connect();
-            await this.simpleUser.register();
+            this.stateElement.innerHTML = "connected";
 
-            stateElement.innerHTML = "connected";
-            //stateElement.innerHTML = "registered";
+            await this.simpleUser.register();
+            this.stateElement.innerHTML = "registered";
 
             this.simpleUser.delegate = {
                 onCallReceived: async () => {
@@ -22534,18 +22535,18 @@
                     }
                 },
                 onCallAnswered: () => {
-                    nameElement.innerHTML = this.simpleUser.session._assertedIdentity._displayName;
+                    this.nameElement.innerHTML = this.simpleUser.session._assertedIdentity._displayName;
                     this.intervalId = window.setInterval(function(){
                         var delta = Math.abs(new Date() - time) / 1000;
                         var minutes = Math.floor(delta / 60) % 60;
                         delta -= minutes * 60;
                         var seconds = delta % 60;
-                        timerElement.innerHTML =  (minutes + ":" + Math.round(seconds)).split(':').map(e => `0${e}`.slice(-2)).join(':');
+                        this.timerElement.innerHTML =  (minutes + ":" + Math.round(seconds)).split(':').map(e => `0${e}`.slice(-2)).join(':');
                       }, 1000);
                 },
                 onCallHangup: () => {
-                    nameElement.innerHTML = "Idle";
-                    timerElement.innerHTML = "00:00";
+                    this.nameElement.innerHTML = "Idle";
+                    this.timerElement.innerHTML = "00:00";
                 }
             };
         }
