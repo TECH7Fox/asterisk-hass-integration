@@ -22518,11 +22518,13 @@
                     authorizationUsername,
                 }
             };
+
+            var port = "8089";
+
             if (this.config.port) {
                 port = this.config.port;
-            } else {
-                port = "8089";
             }
+            
             this.simpleUser = new _src_platform_web__WEBPACK_IMPORTED_MODULE_1__.SimpleUser("wss://" + this.config.server + ":" + port + "/ws", options);
             
             await this.simpleUser.connect();
