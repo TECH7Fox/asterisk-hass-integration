@@ -22428,14 +22428,14 @@
                   </mwc-button>
                   <br><br>
                   ${this.config.entities.map(ent => {
-                    const stateObj = this.hass.states[ent.entity]; // NEXTUP MAKE A INTEGRATION TO TEST WITH, UPDATE ALL THE SPAN TEXT, IMPROVE CSS (ADD SOUND WAVE ANIMATIONS?) AND ADD VIDEO
+                    const stateObj = this.hass.states[ent.entity]; // UPDATE ALL THE SPAN TEXT, IMPROVE CSS (ADD SOUND WAVE ANIMATIONS?) AND ADD VIDEO
                     if (!stateObj) {
                         return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
                             <div class="not-found">Entity ${ent.entity} not found.</div>
                         `;
                     }
                     var isMe = false;
-                    if (this.hass.user.name.toLowerCase() == ent.user) { //name.toLowerCase()) {
+                    if (this.hass.user.name.toLowerCase() == this.hass.states[ent.person].name.toLowerCase()) {
                         isMe = true;
                     }
                     return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
@@ -22476,8 +22476,9 @@
         getCardSize() {
             return this.config.entities.length + 2;
         }
-        async _click(state) {
-            await this.simpleUser.call("sip:" + state.attributes.extension + "@" + this.config.server);
+        async _click(ent) {
+            nameElement.innerHTML = "Calling..."
+            await this.simpleUser.call("sip:" + ent.entity.match(/\d/g).join("") + "@" + this.config.server);
         }
         async _answer() {
             await this.simpleUser.answer();
@@ -22489,13 +22490,17 @@
             await this.simpleUser.sendDTMF(signal);
         }
         async connect() {
+            let timerElement = this.content.querySelector('#time');
+            let nameElement = this.content.querySelector('#name');
+            let stateElement = this.content.querySelector('#state');
+
             var aor = "";
             var authorizationUsername = "";
             var authorizationPassword = "";
             this.config.entities.map(ent => {
                 var extension = ent.entity.match(/\d/g).join("");
-                var client = this.hass.states[ent.entity];
-                if (this.hass.user.name.toLowerCase() == ent.person.toLowerCase()) {
+                var person = this.hass.states[ent.person];
+                if (this.hass.user.name.toLowerCase() == person.name.toLowerCase()) {
                     aor = "sip:" + extension + "@" + this.config.server;
                     authorizationUsername = extension;
                     authorizationPassword = ent.secret;
@@ -22506,7 +22511,6 @@
                 media: {
                     remote: {
                         audio: this.querySelector("#remoteAudio")
-                        // PLACE VIDEO HERE
                     }
                 },
                 userAgentOptions: {
@@ -22515,8 +22519,11 @@
                 }
             };
             this.simpleUser = new _src_platform_web__WEBPACK_IMPORTED_MODULE_1__.SimpleUser("wss://" + this.config.server + ":8089/ws", options);
-            await this.simpleUser.connect(); // userAgent.transport.on('connected', () => registerer.register())
+            await this.simpleUser.connect();
             await this.simpleUser.register();
+
+            stateElement.innerHTML = "connected";
+
             this.simpleUser.delegate = {
                 onCallReceived: async () => {
                     if (this.config.autoAnswer) {
@@ -22526,8 +22533,18 @@
                     }
                 },
                 onCallAnswered: () => {
+                    nameElement.innerHTML = this.simpleUser.session._assertedIdentity._displayName;
+                    this.intervalId = window.setInterval(function(){
+                        var delta = Math.abs(new Date() - time) / 1000;
+                        var minutes = Math.floor(delta / 60) % 60;
+                        delta -= minutes * 60;
+                        var seconds = delta % 60;
+                        timerElement.innerHTML =  (minutes + ":" + Math.round(seconds)).split(':').map(e => `0${e}`.slice(-2)).join(':');
+                      }, 1000);
                 },
                 onCallHangup: () => {
+                    nameElement.innerHTML = "Idle";
+                    timerElement.innerHTML = "00:00";
                 }
             };
         }
