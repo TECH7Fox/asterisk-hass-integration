@@ -22490,9 +22490,9 @@
             await this.simpleUser.sendDTMF(signal);
         }
         async connect() {
-            this.timerElement = document.querySelector('#time');
-            this.nameElement = document.querySelector('#name');
-            this.stateElement = document.querySelector('#state');
+            this.timerElement = this.renderRoot.querySelector('#time');
+            this.nameElement = this.renderRoot.querySelector('#name');
+            this.stateElement = this.renderRoot.querySelector('#state');
 
             var aor = "";
             var authorizationUsername = "";
@@ -22510,7 +22510,7 @@
                 aor,
                 media: {
                     remote: {
-                        audio: this.querySelector("#remoteAudio")
+                        audio: this.renderRoot.querySelector("#remoteAudio")
                     }
                 },
                 userAgentOptions: {
