@@ -22536,6 +22536,7 @@
                 },
                 onCallAnswered: () => {
                     this.nameElement.innerHTML = this.simpleUser.session._assertedIdentity._displayName;
+                    time = new Date();
                     this.intervalId = window.setInterval(function(){
                         var delta = Math.abs(new Date() - time) / 1000;
                         var minutes = Math.floor(delta / 60) % 60;
