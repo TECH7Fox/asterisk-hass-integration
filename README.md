@@ -11,6 +11,7 @@ Things that are coming soon:
 * Better styling
 * Device triggers, conditions and actions
 * More entities with information
+* Support popup
 
 Less priority:
 * Channel entities
@@ -50,6 +51,7 @@ Add the card by setting **type** to `custom:sipjs-card`.
 ````
 type: custom:sipjs-card
 server: 192.168.0.1
+autoAnswer: true
 entities:
   - entity: sensor.asterisk_extension_103
     person: person.someone
