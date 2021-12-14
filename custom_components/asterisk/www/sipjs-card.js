@@ -22435,6 +22435,8 @@
                         `;
                     }
                     var isMe = false;
+                    console.log("PERSON:")
+                    console.log(this.hass.states[ent.person])
                     if (this.hass.user.name.toLowerCase() == this.hass.states[ent.person].id.toLowerCase()) {
                         isMe = true;
                     }
