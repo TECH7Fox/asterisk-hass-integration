@@ -22461,7 +22461,7 @@
             `;
         }
         firstUpdated() {
-            //this.connect();
+            this.connect();
         }
         setConfig(config) {
             if (!config.server) {
@@ -22477,28 +22477,28 @@
             return this.config.entities.length + 2;
         }
         async _click(state) {
-            // await this.simpleUser.call("sip:" + state.attributes.extension + "@" + this.config.server);
+            await this.simpleUser.call("sip:" + state.attributes.extension + "@" + this.config.server);
         }
         async _answer() {
-            // await this.simpleUser.answer();
+            await this.simpleUser.answer();
         }
         async _hangup() {
-            // await this.simpleUser.hangup();
+            await this.simpleUser.hangup();
         }
         async _sendDTMF(signal) {
-            // await this.simpleUser.sendDTMF(signal);
+            await this.simpleUser.sendDTMF(signal);
         }
-        /*
         async connect() {
             var aor = "";
             var authorizationUsername = "";
             var authorizationPassword = "";
             this.config.entities.map(ent => {
+                var extension = ent.entity.match(/\d/g).join("");
                 var client = this.hass.states[ent.entity];
-                if (this.hass.user.name.toLowerCase() == client.attributes.user.toLowerCase()) {
-                    aor = "sip:" + client.attributes.extension + "@" + this.config.server;
-                    authorizationUsername = client.attributes.extension;
-                    authorizationPassword = client.attributes.secret;
+                if (this.hass.user.name.toLowerCase() == ent.person.toLowerCase()) {
+                    aor = "sip:" + extension + "@" + this.config.server;
+                    authorizationUsername = extension;
+                    authorizationPassword = ent.secret;
                 }
             });
             const options = {
@@ -22531,7 +22531,6 @@
                 }
             };
         }
-        */
     }
     customElements.define('sipjs-client-card-addon', SIPjsClientCard);
     
