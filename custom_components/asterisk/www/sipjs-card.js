@@ -22490,9 +22490,9 @@
             await this.simpleUser.sendDTMF(signal);
         }
         async connect() {
-            this.timerElement = this.querySelector('#time');
-            this.nameElement = this.querySelector('#name');
-            this.stateElement = this.querySelector('#state');
+            this.timerElement = document.querySelector('#time');
+            this.nameElement = document.querySelector('#name');
+            this.stateElement = document.querySelector('#state');
 
             var aor = "";
             var authorizationUsername = "";
