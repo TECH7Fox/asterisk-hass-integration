@@ -30,6 +30,8 @@ For this to work you will need the following:
 * A sip/pbx server. (I use freepbx on a raspberry)
 * Extension for every device.
 * HACS on your Home Assistant.
+* Create an AMI manager in FreePBX with the appropriate permit network to allow HA access to FreePBX, goto "settings" - "Asterisk Manager Users"
+
 
 Go to https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX to seehow to setup FreePBX for thiscard.
 
@@ -67,6 +69,9 @@ dtmfs:
 ## Troubleshooting
 Most problems is because your pbx server is not configured correct.
 To see how to configure FreePBX go to: https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX
+
+* For DTMF signalling to work, in FreePBX, change the dmtf signalling, for intercom purposes, "SIP-INFO DTMF-Relay" is needed, send for example an "#"
+* Android companion app doesnt work, its not possible to grant permissions to audio + speaker, this is fixed in the BETA android app, in android Play Store, subscribe to the BETA channel
 
 If you are still having problems you can make an issue, ask on the discord server or send me a email.
 
