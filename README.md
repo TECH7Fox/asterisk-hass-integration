@@ -30,7 +30,7 @@ For this to work you will need the following:
 * A sip/pbx server. (I use freepbx on a raspberry)
 * Extension for every device.
 * HACS on your Home Assistant.
-* Create an AMI manager in FreePBX with the appropriate permit network to allow HA access to FreePBX, goto "settings" - "Asterisk Manager Users"
+* Create an AMI manager. For FreePBX look at https://github.com/TECH7Fox/Asterisk-integration/wiki/Setup-AMI-in-FreePBX.
 
 
 Go to https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX to seehow to setup FreePBX for thiscard.
