@@ -31,7 +31,7 @@ For this to work you will need the following:
 * Extension for every device.
 * HACS on your Home Assistant.
 
-Go to https://github.com/TECH7FoxHA-SIP/wiki/Setup-FreePBX to seehow to setup FreePBX for thiscard.
+Go to https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX to seehow to setup FreePBX for thiscard.
 
 ## Installation
 Download using **HACS**
