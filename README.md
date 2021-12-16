@@ -70,8 +70,8 @@ dtmfs:
 Most problems is because your pbx server is not configured correct.
 To see how to configure FreePBX go to: https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX
 
-* For DTMF signalling to work, in FreePBX, change the dmtf signalling, for intercom purposes, "SIP-INFO DTMF-Relay" is needed, send for example an "#"
-* Android companion app doesnt work, its not possible to grant permissions to audio + speaker, this is fixed in the BETA android app, in android Play Store, subscribe to the BETA channel
+* For DTMF signalling to work, in FreePBX, change the dmtf signalling. For intercom purposes, "SIP-INFO DTMF-Relay" is needed.
+* Android companion app doesn't work, it's not possible to grant permissions to audio + speaker, this is fixed in the BETA android app. In the android Play Store, subscribe to the BETA channel.
 
 If you are still having problems you can make an issue, ask on the discord server or send me a email.
 
