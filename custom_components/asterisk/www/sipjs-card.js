@@ -22435,7 +22435,7 @@
                         `;
                     }
                     var isMe = false;
-                    if (this.hass.user.name.toLowerCase() == this.hass.states[ent.person].attributes.id.toLowerCase()) {
+                    if (this.hass.user.id == this.hass.states[ent.person].attributes.user_id) {
                         isMe = true;
                     }
                     return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
@@ -22501,7 +22501,7 @@
             this.config.entities.map(ent => {
                 var extension = ent.entity.match(/\d/g).join("");
                 var person = this.hass.states[ent.person];
-                if (this.hass.user.name.toLowerCase() == person.attributes.id) {
+                if (this.hass.user.id == person.attributes.user_id) {
                     aor = "sip:" + extension + "@" + this.config.server;
                     authorizationUsername = extension;
                     authorizationPassword = ent.secret;
