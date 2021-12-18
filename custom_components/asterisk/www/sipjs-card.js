@@ -22497,6 +22497,7 @@
             var aor = "";
             var authorizationUsername = "";
             var authorizationPassword = "";
+            console.log(this.hass);
             this.config.entities.map(ent => {
                 var extension = ent.entity.match(/\d/g).join("");
                 var person = this.hass.states[ent.person];
