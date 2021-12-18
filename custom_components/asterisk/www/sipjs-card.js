@@ -22555,6 +22555,7 @@
                 },
                 onCallHangup: () => {
                     this.nameElement.innerHTML = "Idle";
+                    clearInterval(this.intervalId);
                     this.timerElement.innerHTML = "00:00";
                 }
             };
