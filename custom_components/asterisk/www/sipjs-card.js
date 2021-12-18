@@ -22409,7 +22409,7 @@
         render() {
             return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
                   <ha-card>
-                  <audio id="remoteAudio" style="display:none" controls></audio>
+                  <audio id="remoteAudio" style="display:none"></audio>
                   <div class="wrapper">
                   <h2 style="text-align: center; padding-top: 15px; margin-top: 0;" id="name">Idle</h2>
                   <span style="float:left" id="state">Connecting</span>
@@ -22544,7 +22544,7 @@
                 },
                 onCallAnswered: () => {
                     this.nameElement.innerHTML = this.simpleUser.session._assertedIdentity._displayName;
-                    time = new Date();
+                    var time = new Date();
                     this.intervalId = window.setInterval(function(){
                         var delta = Math.abs(new Date() - time) / 1000;
                         var minutes = Math.floor(delta / 60) % 60;
