@@ -22536,6 +22536,8 @@
 
             this.simpleUser.delegate = {
                 onCallReceived: async () => {
+                    this.nameElement.innerHTML = "Incoming call";
+                    console.log(this.simpleUser.session);
                     if (this.config.autoAnswer) {
                         await this.simpleUser.answer();
                     } else {
