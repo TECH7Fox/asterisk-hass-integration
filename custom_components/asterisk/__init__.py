@@ -130,6 +130,7 @@ async def async_setup_entry(hass, entry):
         register_static_path(hass.http.app, url_path, path)
 
         resources: ResourceStorageCollection = hass.data['lovelace']['resources']
+
         await resources.async_get_info()
 
         exists = False
@@ -139,9 +140,12 @@ async def async_setup_entry(hass, entry):
                 exists = True
         
         if not exists:
-            await resources.async_create_item({'res_type': 'module', 'url': '/asterisk/sipjs-card.js'})
+            try:
+                await resources.async_create_item({'res_type': 'module', 'url': '/asterisk/sipjs-card.js'})
+            except Exception as error:
+               _LOGGER.warning("Failed to add resource. Add /asterisk/sipjs-card.js manually.")
         else:
-            _LOGGER.warning("Resource already exists")
+            _LOGGER.info("Resource already exists")
 
         return True
     except asterisk.manager.ManagerException as exception:
