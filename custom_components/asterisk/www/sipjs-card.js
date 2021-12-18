@@ -22551,7 +22551,7 @@
                         delta -= minutes * 60;
                         var seconds = delta % 60;
                         this.timerElement.innerHTML =  (minutes + ":" + Math.round(seconds)).split(':').map(e => `0${e}`.slice(-2)).join(':');
-                      }, 1000);
+                      }.bind(this), 1000);
                 },
                 onCallHangup: () => {
                     this.nameElement.innerHTML = "Idle";
