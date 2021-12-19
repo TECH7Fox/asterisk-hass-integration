@@ -22412,6 +22412,7 @@
                   <audio id="remoteAudio" style="display:none"></audio>
                   <div class="wrapper">
                   <h2 style="text-align: center; padding-top: 15px; margin-top: 0;" id="name">Idle</h2>
+                  <video id="remoteVideo"></video>
                   <span style="float:left" id="state">Connecting</span>
                   <span style="float:right" id="time">00:00</span>
                   <br><hr style="margin-bottom: 12px;">
@@ -22511,7 +22512,8 @@
                 aor,
                 media: {
                     remote: {
-                        audio: this.renderRoot.querySelector("#remoteAudio")
+                        audio: this.renderRoot.querySelector("#remoteAudio"),
+                        video: this.renderRoot.querySelector('#remoteVideo')
                     }
                 },
                 userAgentOptions: {
