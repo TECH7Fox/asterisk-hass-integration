@@ -33,7 +33,7 @@ For this to work you will need the following:
 * Create an AMI manager. For FreePBX look at https://github.com/TECH7Fox/Asterisk-integration/wiki/Setup-AMI-in-FreePBX.
 
 
-Go to https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX to seehow to setup FreePBX for thiscard.
+Go to https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX to see how to setup FreePBX for this card.
 
 ## Installation
 Download using **HACS**
