@@ -22404,6 +22404,10 @@
         .icon {
           width: 40px;
           height: 40px;
+        }
+        .video {
+          width: 100%;
+          height: auto;
         }`;
         }
         render() {
@@ -22414,6 +22418,7 @@
                   <h2 style="text-align: center; padding-top: 15px; margin-top: 0;" id="name">Idle</h2>
                   <span style="float:left" id="state">Connecting</span>
                   <span style="float:right" id="time">00:00</span>
+                  <video class="video" id="remoteVideo"></video>
                   <br><hr style="margin-bottom: 12px;">
                   <mwc-button outlined @click=${() => this._answer()} style="float: right;">
                       <svg class="icon" viewBox="0 0 24 24">
@@ -22511,7 +22516,8 @@
                 aor,
                 media: {
                     remote: {
-                        audio: this.renderRoot.querySelector("#remoteAudio")
+                        audio: this.renderRoot.querySelector("#remoteAudio"),
+                        video: this.renderRoot.querySelector('#remoteVideo')
                     }
                 },
                 userAgentOptions: {
