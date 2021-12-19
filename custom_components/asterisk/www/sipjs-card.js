@@ -22418,7 +22418,7 @@
                   <h2 style="text-align: center; padding-top: 15px; margin-top: 0;" id="name">Idle</h2>
                   <span style="float:left" id="state">Connecting</span>
                   <span style="float:right" id="time">00:00</span>
-                  ${this.config.video ? '<video class="video" id="remoteVideo"></video>' : ''}
+                  ${this.config.video ? lit_element__WEBPACK_IMPORTED_MODULE_0__.html `<video class="video" id="remoteVideo"></video>` : ''}
                   <br><hr style="margin-bottom: 12px;">
                   <mwc-button outlined @click=${() => this._answer()} style="float: right;">
                       <svg class="icon" viewBox="0 0 24 24">
@@ -22512,7 +22512,7 @@
                     authorizationPassword = ent.secret;
                 }
             });
-            
+
             var options = {
                 aor,
                 media: {
