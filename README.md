@@ -72,6 +72,7 @@ To see how to configure FreePBX go to: https://github.com/TECH7Fox/HA-SIP/wiki/S
 
 * For DTMF signalling to work, in FreePBX, change the dmtf signalling. For intercom purposes, "SIP-INFO DTMF-Relay" is needed.
 * Android companion app doesn't work, it's not possible to grant permissions to audio + speaker, this is fixed in the BETA android app. In the android Play Store, subscribe to the BETA channel.
+* Android companion app doesn't allow h264 video codec, make you disallow it on your softphone and/or Asterisk... If you want video in the companion app, use VP8 for instance 
 
 If you are still having problems you can make an issue, ask on the discord server or send me a email.
 
