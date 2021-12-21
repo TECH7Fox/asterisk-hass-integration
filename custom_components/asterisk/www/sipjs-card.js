@@ -22414,6 +22414,7 @@
             return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
                   <ha-card>
                   <audio id="remoteAudio" style="display:none"></audio>
+                  <audio id="ringtoneAudio" style="display:none" loop controls></audio>
                   <div class="wrapper">
                   <h2 style="text-align: center; padding-top: 15px; margin-top: 0;" id="name">Idle</h2>
                   <span style="float:left" id="state">Connecting</span>
@@ -22502,6 +22503,10 @@
             this.timerElement = this.renderRoot.querySelector('#time');
             this.nameElement = this.renderRoot.querySelector('#name');
             this.stateElement = this.renderRoot.querySelector('#state');
+            this.ringtoneAudio = this.renderRoot.querySelector('#ringtoneAudio');
+            if (this.config.ringtone) {
+                ringtoneAudio.src = this.config.ringtone;
+            }
 
             var aor = "";
             var authorizationUsername = "";
@@ -22550,6 +22555,8 @@
 
             this.simpleUser.delegate = {
                 onCallReceived: async () => {
+                    this.ringtoneAudio.currentTime = 0;
+                    this.ringtoneAudio.play();
                     this.nameElement.innerHTML = "Incoming call: " + this.simpleUser.session._assertedIdentity._displayName;
                     if (this.config.autoAnswer) {
                         await this.simpleUser.answer();
@@ -22558,6 +22565,7 @@
                     }
                 },
                 onCallAnswered: () => {
+                    ringtoneAudio.pause();
                     this.nameElement.innerHTML = this.simpleUser.session._assertedIdentity._displayName;
                     var time = new Date();
                     this.intervalId = window.setInterval(function(){
@@ -22569,6 +22577,7 @@
                       }.bind(this), 1000);
                 },
                 onCallHangup: () => {
+                    ringtoneAudio.pause();
                     this.nameElement.innerHTML = "Idle";
                     clearInterval(this.intervalId);
                     this.timerElement.innerHTML = "00:00";
