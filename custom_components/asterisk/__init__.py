@@ -117,10 +117,10 @@ async def async_setup_entry(hass, entry):
             os.mkdir('/config/www/asterisk')
         except OSError as error:
             _LOGGER.warning(error)
-            
 
         try:
             copyfile('/config/custom_components/asterisk/www/sipjs-card.js', '/config/www/asterisk/sipjs-card.js')
+            copyfile('/config/custom_components/asterisk/www/ringtone.mp3', '/config/www/asterisk/ringtone.mp3')
         except IOError as error:
             _LOGGER.error(error)
             
