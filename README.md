@@ -54,6 +54,7 @@ Add the card by setting **type** to `custom:sipjs-card`.
 type: custom:sipjs-card
 server: 192.168.0.1
 autoAnswer: true
+ringtone: /local/asterisk/ringtone.mp3
 entities:
   - entity: sensor.asterisk_extension_103
     person: person.someone
@@ -65,6 +66,11 @@ dtmfs:
   - name: door
     signal: 1
 ````
+
+- server: Your Asterisk server.
+- autoAnswer: Answers any incoming call.
+- ringtone: Path to ringtone. `/local` is your `/www` folder.
+- dtmfs: Adds a button to send a ftmf signal in the current call.
 
 ## Troubleshooting
 Most problems is because your pbx server is not configured correct.
