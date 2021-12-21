@@ -121,7 +121,7 @@ async def async_setup_entry(hass, entry):
         try:
             copyfile('/config/custom_components/asterisk/www/sipjs-card.js', '/config/www/asterisk/sipjs-card.js')
             copyfile('/config/custom_components/asterisk/www/ringtone.mp3', '/config/www/asterisk/ringtone.mp3')
-            copyfile('/config/custom_components/asterisk/www/ringback.mp3', '/config/www/asterisk/ringback.mp3')
+            copyfile('/config/custom_components/asterisk/www/backtone.mp3', '/config/www/asterisk/backtone.mp3')
         except IOError as error:
             _LOGGER.error(error)
             

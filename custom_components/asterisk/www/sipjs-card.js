@@ -22483,8 +22483,8 @@
             return this.config.entities.length + 2;
         }
         async _click(ent) {
-            if (this.config.ringback) {
-                this.toneAudio.src = this.config.ringback;
+            if (this.config.backtone) {
+                this.toneAudio.src = this.config.backtone;
                 this.toneAudio.currentTime = 0;
                 this.toneAudio.play();
             }
