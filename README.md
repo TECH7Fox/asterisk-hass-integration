@@ -68,6 +68,7 @@ dtmfs:
     signal: 1
 ````
 
+- video: Enables remote video.
 - server: Your Asterisk server.
 - autoAnswer: Answers any incoming call.
 - ringtone: Path to ringtone. Used when being called. `/local` is your `/www` folder.
