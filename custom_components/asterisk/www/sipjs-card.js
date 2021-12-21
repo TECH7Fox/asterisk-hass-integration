@@ -22505,7 +22505,7 @@
             this.stateElement = this.renderRoot.querySelector('#state');
             this.ringtoneAudio = this.renderRoot.querySelector('#ringtoneAudio');
             if (this.config.ringtone) {
-                ringtoneAudio.src = this.config.ringtone;
+                this.ringtoneAudio.src = this.config.ringtone;
             }
 
             var aor = "";
@@ -22565,7 +22565,7 @@
                     }
                 },
                 onCallAnswered: () => {
-                    ringtoneAudio.pause();
+                    this.ringtoneAudio.pause();
                     this.nameElement.innerHTML = this.simpleUser.session._assertedIdentity._displayName;
                     var time = new Date();
                     this.intervalId = window.setInterval(function(){
@@ -22577,7 +22577,7 @@
                       }.bind(this), 1000);
                 },
                 onCallHangup: () => {
-                    ringtoneAudio.pause();
+                    this.ringtoneAudio.pause();
                     this.nameElement.innerHTML = "Idle";
                     clearInterval(this.intervalId);
                     this.timerElement.innerHTML = "00:00";
