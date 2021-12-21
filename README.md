@@ -54,6 +54,7 @@ Add the card by setting **type** to `custom:sipjs-card`.
 type: custom:sipjs-card
 server: 192.168.0.1
 autoAnswer: true
+video: true
 ringtone: /local/asterisk/ringtone.mp3
 backtone: /local/asterisk/backtone.mp3
 entities:
