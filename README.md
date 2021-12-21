@@ -55,6 +55,7 @@ type: custom:sipjs-card
 server: 192.168.0.1
 autoAnswer: true
 ringtone: /local/asterisk/ringtone.mp3
+backtone: /local/asterisk/backtone.mp3
 entities:
   - entity: sensor.asterisk_extension_103
     person: person.someone
@@ -69,7 +70,8 @@ dtmfs:
 
 - server: Your Asterisk server.
 - autoAnswer: Answers any incoming call.
-- ringtone: Path to ringtone. `/local` is your `/www` folder.
+- ringtone: Path to ringtone. Used when being called. `/local` is your `/www` folder.
+- backtone: Path to backtone. Used when calling. `/local` is your `/www` folder.
 - dtmfs: Adds a button to send a ftmf signal in the current call.
 
 ## Troubleshooting
