@@ -22433,7 +22433,7 @@
                   </mwc-button>
                   <br><br>
                   ${this.config.entities.map(ent => {
-                    const stateObj = this.hass.states[ent.entity]; // UPDATE ALL THE SPAN TEXT, IMPROVE CSS (ADD SOUND WAVE ANIMATIONS?) AND ADD VIDEO
+                    const stateObj = this.hass.states[ent.entity]; // filter: grayscale(1); FOR VIDEO
                     if (!stateObj) {
                         return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
                             <div class="not-found">Entity ${ent.entity} not found.</div>
@@ -22483,7 +22483,11 @@
         }
         async _click(ent) {
             this.nameElement.innerHTML = "Calling..."
-            await this.simpleUser.call("sip:" + ent.entity.match(/\d/g).join("") + "@" + this.config.server);
+            var inviterOptions = {}
+            if (this.config.earlyMedia) {
+                inviterOptions.earlyMedia = true;
+            }
+            await this.simpleUser.call("sip:" + ent.entity.match(/\d/g).join("") + "@" + this.config.server, inviterOptions);
         }
         async _answer() {
             await this.simpleUser.answer();
