@@ -53,6 +53,7 @@ Add the card by setting **type** to `custom:sipjs-card`.
 ````
 type: custom:sipjs-card
 server: 192.168.0.1
+port: 8089
 autoAnswer: true
 ringtone: /local/asterisk/ringtone.mp3
 backtone: /local/asterisk/backtone.mp3
@@ -69,6 +70,7 @@ dtmfs:
 ````
 
 - server: Your Asterisk server.
+- port: Sets the websocket port.
 - autoAnswer: Answers any incoming call.
 - ringtone: Path to ringtone. Used when being called. `/local` is your `/www` folder.
 - backtone: Path to backtone. Used when calling. `/local` is your `/www` folder.

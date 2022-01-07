@@ -22562,14 +22562,23 @@
                         this.toneAudio.currentTime = 0;
                         this.toneAudio.play();
                     }
-                    this.nameElement.innerHTML = "Incoming call: " + this.simpleUser.session._assertedIdentity._displayName;
+                    if (this.simpleUser.session._assertedIdentity._displayName) {
+                        this.nameElement.innerHTML = "Incoming call: " + this.simpleUser.session._assertedIdentity._displayName;
+                    } else {
+                        this.nameElement.innerHTML = "Incoming call. "; 
+                    }
                     if (this.config.autoAnswer) {
                         await this.simpleUser.answer();
                     }
                 },
                 onCallAnswered: () => {
                     this.toneAudio.pause();
-                    this.nameElement.innerHTML = this.simpleUser.session._assertedIdentity._displayName;
+                    console.log(this.simpleUser.session);
+                    if (this.simpleUser.session._assertedIdentity._displayName) {
+                        this.nameElement.innerHTML = this.simpleUser.session._assertedIdentity._displayName;
+                    } else {
+                        this.nameElement.innerHTML = "Connected";
+                    }
                     var time = new Date();
                     this.intervalId = window.setInterval(function(){
                         var delta = Math.abs(new Date() - time) / 1000;
