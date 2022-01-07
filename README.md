@@ -5,7 +5,6 @@ This integration finds and adds all extensions to your Home Assistant and includ
 
 ## Roadmap
 Things that are coming soon:
-* Video
 * GUI config
 * More useful text
 * Better styling
@@ -39,7 +38,7 @@ Go to https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX to see how to setup 
 Download using **HACS**
  1. Go to HACS
  2. Click on the 3 points in the upper right corner and click on `Custom repositories`
- 3. Paste https://github.com/TECH7Fox/Asterisk-integration/ into `Add custom repository URL` and by category choose Lovelace
+ 3. Paste https://github.com/TECH7Fox/Asterisk-integration/ into `Add custom repository URL` and by category choose Integration
  4. Click on add and check if the repository is there.
  5. You should now see Asterisk integration. Click `INSTALL`
  6. Restart Home Assistant.
@@ -55,6 +54,7 @@ type: custom:sipjs-card
 server: 192.168.0.1
 port: 8089
 autoAnswer: true
+video: true
 ringtone: /local/asterisk/ringtone.mp3
 backtone: /local/asterisk/backtone.mp3
 entities:
@@ -69,6 +69,7 @@ dtmfs:
     signal: 1
 ````
 
+- video: Enables remote video.
 - server: Your Asterisk server.
 - port: Sets the websocket port.
 - autoAnswer: Answers any incoming call.
