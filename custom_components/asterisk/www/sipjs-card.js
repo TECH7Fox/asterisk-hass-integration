@@ -22453,12 +22453,23 @@
                         </div>
                     `;
                   })}
+                  ${this.config.custom ?
+                    this.config.custom.map(custom => {
+                      return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
+                        <div class="flex">
+                        <div class="info">${custom.name}</div>
+                        <mwc-button .hass=${this.hass} .config=${this.config} @click="${() => this._call(custom.number)}">CALL</mwc-button>
+                        </div>
+                      `;
+                    }) : ""
+                  }
                   ${this.config.dtmfs ?  
                       this.config.dtmfs.map(dtmf => {
                         return lit_element__WEBPACK_IMPORTED_MODULE_0__.html `
                           <div class="flex">
                           <div class="info">${dtmf.name}</div>
                           <mwc-button .hass=${this.hass} .config=${this.config} @click="${() => this._sendDTMF(dtmf.signal)}">SEND</mwc-button>
+                          </div>
                         `;
                       }) : ""
                     }
