@@ -22507,6 +22507,16 @@
             await this.simpleUser.call("sip:" + ent.entity.match(/\d/g).join("") + "@" + this.config.server, inviterOptions);
         }
         async _call(number) {
+            if (this.config.backtone) {
+                this.toneAudio.src = this.config.backtone;
+                this.toneAudio.currentTime = 0;
+                this.toneAudio.play();
+            }
+            this.nameElement.innerHTML = "Calling..."
+            var inviterOptions = {}
+            if (this.config.earlyMedia) {
+                inviterOptions.earlyMedia = true;
+            }
             await this.simpleUser.call("sip:" + number + "@" + this.config.server, inviterOptions);
         }
         async _answer() {
