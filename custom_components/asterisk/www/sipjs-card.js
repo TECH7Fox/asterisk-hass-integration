@@ -22506,6 +22506,9 @@
             }
             await this.simpleUser.call("sip:" + ent.entity.match(/\d/g).join("") + "@" + this.config.server, inviterOptions);
         }
+        async _call(number) {
+            await this.simpleUser.call("sip:" + number + "@" + this.config.server, inviterOptions);
+        }
         async _answer() {
             await this.simpleUser.answer();
         }
