@@ -22562,7 +22562,7 @@
                         this.toneAudio.currentTime = 0;
                         this.toneAudio.play();
                     }
-                    if (this.simpleUser.session._assertedIdentity._displayName) {
+                    if (this.simpleUser.session._assertedIdentity) {
                         this.nameElement.innerHTML = "Incoming call: " + this.simpleUser.session._assertedIdentity._displayName;
                     } else {
                         this.nameElement.innerHTML = "Incoming call. "; 
@@ -22574,7 +22574,7 @@
                 onCallAnswered: () => {
                     this.toneAudio.pause();
                     console.log(this.simpleUser.session);
-                    if (this.simpleUser.session._assertedIdentity._displayName) {
+                    if (this.simpleUser.session._assertedIdentity) {
                         this.nameElement.innerHTML = this.simpleUser.session._assertedIdentity._displayName;
                     } else {
                         this.nameElement.innerHTML = "Connected";
