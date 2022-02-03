@@ -15,7 +15,6 @@ from homeassistant.helpers import device_registry as dr
 from aiohttp import web
 from pathlib import Path
 from homeassistant.helpers.typing import HomeAssistantType
-from homeassistant.components.lovelace.resources import ResourceStorageCollection
 from shutil import Error, copy, copyfile
 from .const import DOMAIN
 
@@ -106,7 +105,7 @@ async def async_setup_entry(hass, entry):
                 entry, "sensor"
             )
         )
-        
+
         return True
     except asterisk.manager.ManagerException as exception:
         _LOGGER.error("Error connecting to Asterisk: %s", exception.args[1])
