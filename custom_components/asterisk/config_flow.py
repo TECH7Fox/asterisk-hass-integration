@@ -33,8 +33,7 @@ class AsteriskConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return await self.async_step_hassio_confirm()
     
-    async def async_step_hassio_confirm(
-        self, user_input | None = None):
+    async def async_step_hassio_confirm(self, user_input):
         """Confirm Supervisor discovery."""
         if user_input is None and self._hassio_discovery is not None:
             return self.async_show_form(
