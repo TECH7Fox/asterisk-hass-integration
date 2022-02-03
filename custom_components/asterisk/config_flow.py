@@ -25,6 +25,9 @@ class AsteriskConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._username = vol.UNDEFINED
         self._password = vol.UNDEFINED
 
+    # async def async_step_discovery(self, info):
+    #     """"""
+
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
         errors = {}

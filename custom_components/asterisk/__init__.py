@@ -106,48 +106,7 @@ async def async_setup_entry(hass, entry):
                 entry, "sensor"
             )
         )
-
-        # make folders if they don't exists.
-        try:
-            os.mkdir('/config/www')
-        except OSError as error:
-            _LOGGER.warning(error)
-
-        try:
-            os.mkdir('/config/www/asterisk')
-        except OSError as error:
-            _LOGGER.warning(error)
-
-        try:
-            copyfile('/config/custom_components/asterisk/www/sipjs-card.js', '/config/www/asterisk/sipjs-card.js')
-            copyfile('/config/custom_components/asterisk/www/ringtone.mp3', '/config/www/asterisk/ringtone.mp3')
-            copyfile('/config/custom_components/asterisk/www/backtone.mp3', '/config/www/asterisk/backtone.mp3')
-        except IOError as error:
-            _LOGGER.error(error)
-            
-
-        url_path = '/asterisk/sipjs-card.js'
-        path = Path(__file__).parent / 'www/sipjs-card.js'
-        register_static_path(hass.http.app, url_path, path)
-
-        resources: ResourceStorageCollection = hass.data['lovelace']['resources']
-
-        await resources.async_get_info()
-
-        exists = False
-
-        for item in resources.async_items():
-            if item['url'] == '/asterisk/sipjs-card.js':
-                exists = True
         
-        if not exists:
-            try:
-                await resources.async_create_item({'res_type': 'module', 'url': '/asterisk/sipjs-card.js'})
-            except Exception as error:
-               _LOGGER.warning("Failed to add resource. Add /asterisk/sipjs-card.js manually.")
-        else:
-            _LOGGER.info("Resource already exists")
-
         return True
     except asterisk.manager.ManagerException as exception:
         _LOGGER.error("Error connecting to Asterisk: %s", exception.args[1])
