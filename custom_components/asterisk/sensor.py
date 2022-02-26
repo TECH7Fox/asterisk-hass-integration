@@ -91,7 +91,7 @@ class AsteriskExtension(SensorEntity):
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
-        # _LOGGER.error("extension update: " + json.dumps(event.headers))
+        #_LOGGER.error("extension update: " + json.dumps(event.headers))
 
         extension = event.get_header("Exten")
         status = event.get_header("StatusText")
@@ -139,4 +139,52 @@ class AsteriskExtension(SensorEntity):
     def update(self):
         """Update."""
         self._astmanager.extension_state(self._extension, "")
+        # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
+
+class AsteriskChannel(SensorEntity):
+    """Entity for a Asterisk extension."""
+
+    def __init__(self, hass, status, extension, tech, entry):
+        """Setting up extension."""
+        self._hass = hass
+        self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
+        self._state = "Unknown"
+        self._entry = entry
+        self._unique_id = f"{entry.entry_id}_{extension}"
+        self._astmanager.register_event("Newchannel", self.handle_asterisk_event)
+
+    def handle_asterisk_event(self, event, astmanager):
+        """Handle events."""
+        _LOGGER.error("new channel: " + json.dumps(event.headers))
+        self._state = "100"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique id for this instance."""
+        return self._unique_id
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return {
+            "identifiers": {(DOMAIN, self._unique_id)},
+            "name": self.name,
+            "manufacturer": "Asterisk",
+            "model": self._tech,
+            "sw_version": SW_VERSION,
+            "via_device": (DOMAIN, self._entry.entry_id),
+        }
+
+    @property
+    def name(self):
+        """Callee number."""
+        return f"Callee"
+
+    @property
+    def state(self):
+        """Callee number."""
+        return self._state
+
+    def update(self):
+        """Update."""
+        #self._astmanager.extension_state(self._extension, "")
         # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp

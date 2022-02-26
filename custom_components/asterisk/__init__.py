@@ -20,7 +20,7 @@ from .const import DOMAIN
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 5038
-DEFAULT_USERNAME = "manager"
+DEFAULT_USERNAME = "admin"
 DEFAULT_PASSWORD = "manager"
 
 DATA_ASTERISK = "asterisk_manager"
@@ -58,11 +58,18 @@ def register_static_path(app: web.Application, url_path: str, path):
 def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
 
-    device = {
-        "extension": event.get_header("ObjectName"),
-        "status": event.get_header("Status"),
-        "tech": event.get_header("Channeltype")
-    }
+    if (event.get_header("Event") == "EndpointList"):
+        device = {
+            "extension": event.get_header("ObjectName"),
+            "status": event.get_header("Status"),
+            "tech": "PJSIP"
+        }
+    else:
+        device = {
+            "extension": event.get_header("ObjectName"),
+            "status": event.get_header("Status"),
+            "tech": event.get_header("Channeltype")
+        }
 
     hass.data[DOMAIN][entry.entry_id]["devices"].append(device)
 
