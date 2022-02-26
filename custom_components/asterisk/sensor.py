@@ -23,7 +23,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     entities = [AsteriskServer(hass, entry)]
     for device in devices:
         entities.append(AsteriskExtension(hass, device["status"], device["extension"], device["tech"], entry))
-        entities.append(AsteriskCallee(hass, device["status"], device["extension"], device["tech"], entry))
+        entities.append(AsteriskCallee(hass, device["extension"], entry))
         _LOGGER.info(f"Setting up asterisk extension device for extension {device['tech']}{device['extension']}")
 
     async_add_entities(entities, True)
