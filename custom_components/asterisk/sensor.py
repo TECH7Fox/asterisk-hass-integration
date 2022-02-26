@@ -86,7 +86,7 @@ class AsteriskExtension(SensorEntity):
             self._state = "Unknown"
         self._tech = tech
         self._entry = entry
-        self._unique_id = f"{entry.entry_id}_{extension}"
+        self._unique_id = f"{entry.entry_id}_{extension}_state"
         self._astmanager.register_event("ExtensionStatus", self.handle_asterisk_event)
         _LOGGER.info("Asterisk extension device initialized")
 
@@ -119,8 +119,8 @@ class AsteriskExtension(SensorEntity):
     @property
     def device_info(self) -> DeviceInfo:
         return {
-            "identifiers": {(DOMAIN, self._unique_id)},
-            "name": self.name,
+            "identifiers": {(DOMAIN, f"{self._entry.entry_id}_{self._extension}")},
+            "name": f"Asterisk Extension {self._extension}",
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
@@ -129,8 +129,8 @@ class AsteriskExtension(SensorEntity):
 
     @property
     def name(self):
-        """Extension name."""
-        return f"Asterisk Extension {self._extension}"
+        """Extension state name."""
+        return f"State"
 
     @property
     def state(self):
@@ -172,8 +172,8 @@ class AsteriskCallee(SensorEntity):
     @property
     def device_info(self) -> DeviceInfo:
         return {
-            "identifiers": {(DOMAIN, self._unique_id)},
-            "name": self.name,
+            "identifiers": {(DOMAIN, f"{self._entry.entry_id}_{self._extension}")},
+            "name": f"Asterisk Extension {self._extension}",
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
