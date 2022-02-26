@@ -153,7 +153,7 @@ class AsteriskCallee(SensorEntity):
         self._state = "Unknown"
         self._tech = tech
         self._entry = entry
-        self._unique_id = f"{entry.entry_id}_{extension}"
+        self._unique_id = f"{entry.entry_id}_{extension}_callee"
         self._astmanager.register_event("Newchannel", self.handle_asterisk_event)
 
     def handle_asterisk_event(self, event, astmanager):
