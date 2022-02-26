@@ -150,19 +150,27 @@ class AsteriskCallee(SensorEntity):
         self._hass = hass
         self._extension = extension
         self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
-        self._state = "Unknown"
+        self._state = "None"
         self._tech = tech
         self._entry = entry
         self._unique_id = f"{entry.entry_id}_{extension}_callee"
-        self._astmanager.register_event("Newchannel", self.handle_asterisk_event)
+        self._astmanager.register_event("Newchannel", self.handle_new_channel)
+        self._astmanager.register_event("Hangup", self.handle_hangup)
 
-    def handle_asterisk_event(self, event, astmanager):
-        """Handle events."""
+    def handle_new_channel(self, event, astmanager):
+        """Handle new channel."""
         _LOGGER.error("new channel: " + json.dumps(event.headers))
 
-        #extension = event.get_header("Exten")
-        #if (self._extension == extension):
-        self._state = "100"
+        extension = event.get_header("CallerIDNum")
+        if (self._extension == extension):
+            self._state = event.get_header("Exten")
+
+    def handle_hangup(self, event, astmanager):
+        """Handle hangup."""
+
+        extension = event.get_header("CallerIDNum")
+        if (self._extension == extension):
+            self._state = "None"
 
     @property
     def unique_id(self) -> str:
