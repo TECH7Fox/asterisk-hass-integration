@@ -23,7 +23,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     entities = [AsteriskServer(hass, entry)]
     for device in devices:
         entities.append(AsteriskExtension(hass, device["status"], device["extension"], device["tech"], entry))
-        entities.append(AsteriskCallee(hass, device["extension"], entry))
+        entities.append(AsteriskCallee(hass, device["extension"], device["tech"], entry))
         _LOGGER.info(f"Setting up asterisk extension device for extension {device['tech']}{device['extension']}")
 
     async_add_entities(entities, True)
@@ -145,12 +145,13 @@ class AsteriskExtension(SensorEntity):
 class AsteriskCallee(SensorEntity):
     """Entity for a Asterisk extension."""
 
-    def __init__(self, hass, extension, entry):
+    def __init__(self, hass, extension, tech, entry):
         """Setting up extension."""
         self._hass = hass
         self._extension = extension
         self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
         self._state = "Unknown"
+        self._tech = tech
         self._entry = entry
         self._unique_id = f"{entry.entry_id}_{extension}"
         self._astmanager.register_event("Newchannel", self.handle_asterisk_event)
