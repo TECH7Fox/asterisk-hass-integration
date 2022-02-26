@@ -56,7 +56,7 @@ def register_static_path(app: web.Application, url_path: str, path):
         app['allow_cors'](route)
 
 def handle_asterisk_event(event, manager, hass, entry):
-    # _LOGGER.error("event.headers: " + json.dumps(event.headers))
+    _LOGGER.error("event.headers: " + json.dumps(event.headers))
 
     device = {
         "extension": event.get_header("ObjectName"),
@@ -97,6 +97,10 @@ async def async_setup_entry(hass, entry):
         _LOGGER.info("Successfully connected to Asterisk server")
         manager.register_event("PeerEntry", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
         manager.sippeers()
+
+        manager.register_event("EndpointList", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
+        cdict = {"Action": "PJSIPShowEndpoints"}
+        manager.send_action(cdict)
 
         sleep(5)
         
