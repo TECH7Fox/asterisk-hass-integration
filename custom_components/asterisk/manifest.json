@@ -1,7 +1,7 @@
 {
   "domain": "asterisk",
   "name": "Asterisk",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "config_flow": true,
   "documentation": "https://github.com/TECH7Fox/Asterisk-integration",
   "issue_tracker": "https://github.com/TECH7Fox/Asterisk-integration/issues",

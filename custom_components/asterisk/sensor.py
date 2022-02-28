@@ -59,7 +59,7 @@ class AsteriskServer(SensorEntity):
     @property
     def name(self):
         """Extension name."""
-        return f"Asterisk Server"
+        return f"PBX Server"
 
     @property
     def state(self):
@@ -92,7 +92,7 @@ class AsteriskExtension(SensorEntity):
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
-        #_LOGGER.error("extension update: " + json.dumps(event.headers))
+        _LOGGER.error("extension update: " + json.dumps(event.headers))
 
         extension = event.get_header("Exten")
         status = event.get_header("StatusText")
@@ -120,7 +120,7 @@ class AsteriskExtension(SensorEntity):
     def device_info(self) -> DeviceInfo:
         return {
             "identifiers": {(DOMAIN, f"{self._entry.entry_id}_{self._extension}")},
-            "name": f"Asterisk Extension {self._extension}",
+            "name": f"Extension {self._extension}",
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
@@ -130,7 +130,7 @@ class AsteriskExtension(SensorEntity):
     @property
     def name(self):
         """Extension state name."""
-        return f"State"
+        return f"{self._extension} State"
 
     @property
     def state(self):
@@ -181,7 +181,7 @@ class AsteriskCallee(SensorEntity):
     def device_info(self) -> DeviceInfo:
         return {
             "identifiers": {(DOMAIN, f"{self._entry.entry_id}_{self._extension}")},
-            "name": f"Asterisk Extension {self._extension}",
+            "name": f"Extension {self._extension}",
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
@@ -191,7 +191,7 @@ class AsteriskCallee(SensorEntity):
     @property
     def name(self):
         """Callee number."""
-        return f"Callee"
+        return f"{self._extension} Callee"
 
     @property
     def state(self):
