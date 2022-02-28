@@ -139,7 +139,7 @@ class AsteriskExtension(SensorEntity):
 
     def update(self):
         """Update."""
-        self._astmanager.extension_state(self._extension, "")
+        #self._astmanager.extension_state(self._extension, "")
         # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
 
 class AsteriskCallee(SensorEntity):
