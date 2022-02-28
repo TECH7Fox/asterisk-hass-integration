@@ -92,7 +92,7 @@ class AsteriskExtension(SensorEntity):
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
-        _LOGGER.error("extension update: " + json.dumps(event.headers))
+        _LOGGER.warning("extension update: " + json.dumps(event.headers))
 
         extension = event.get_header("Exten")
         status = event.get_header("StatusText")
@@ -159,18 +159,22 @@ class AsteriskCallee(SensorEntity):
 
     def handle_new_channel(self, event, astmanager):
         """Handle new channel."""
-        _LOGGER.error("new channel: " + json.dumps(event.headers))
+        _LOGGER.warning("new channel: " + json.dumps(event.headers))
 
         extension = event.get_header("CallerIDNum")
         if (self._extension == extension):
             self._state = event.get_header("Exten")
+            self.hass.async_add_job(self.async_update_ha_state())
 
     def handle_hangup(self, event, astmanager):
         """Handle hangup."""
 
+        _LOGGER.warning("new hangup: " + json.dumps(event.headers))
+
         extension = event.get_header("CallerIDNum")
         if (self._extension == extension):
             self._state = "None"
+            self.hass.async_add_job(self.async_update_ha_state())
 
     @property
     def unique_id(self) -> str:
