@@ -86,6 +86,21 @@ async def async_setup_entry(hass, entry):
 
     hass.services.async_register(DOMAIN, "hangup", handle_hangup)
 
+    async def originate_service(call) -> None:
+        "Handle the service call."
+
+        response = hass.data[DOMAIN][entry.entry_id]["manager"].originate(
+            call.data.get("channel"), # SIP/101
+            call.data.get("extension"), # 101
+            call.data.get("context"), # [general]
+            call.data.get("priority"),
+            call.data.get("timeout") * 1000,
+            call.data.get("caller_id"))
+
+        _LOGGER.info("Originate response: ", response)
+
+    hass.services.async_register(DOMAIN, "originate", originate_service)
+
     manager = asterisk.manager.Manager()
 
     host = entry.data[CONF_HOST]
