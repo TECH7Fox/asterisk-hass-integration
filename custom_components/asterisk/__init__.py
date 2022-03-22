@@ -52,6 +52,8 @@ def handle_shutdown(event, manager, hass, entry):
     username = entry.data[CONF_USERNAME]
     password = entry.data[CONF_PASSWORD]
 
+    manager.close()
+
     while True:
         sleep(30)
         try:
