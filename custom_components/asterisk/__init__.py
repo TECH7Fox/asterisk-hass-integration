@@ -44,8 +44,25 @@ PLATFORMS = ["sensor"]
 
 _LOGGER = logging.getLogger(__name__)
 
+def handle_shutdown(self, event, astmanager):
+    _LOGGER.error("Asterisk shutting down.")
+
+    host = self._entry.data[CONF_HOST]
+    port = self._entry.data[CONF_PORT]
+    username = self._entry.data[CONF_USERNAME]
+    password = self._entry.data[CONF_PASSWORD]
+
+    while True:
+        sleep(30)
+        try:
+            self._astmanager.connect(host, port)
+            self._astmanager.login(username, password)
+            _LOGGER.info("Succesfully reconnected.")
+            break
+        except asterisk.manager.ManagerException as exception:
+            _LOGGER.error("Error reconnecting to Asterisk: %s", exception.args[1])
+
 def handle_asterisk_event(event, manager, hass, entry):
-    _LOGGER.error("event.headers: " + json.dumps(event.headers))
 
     if (event.get_header("Event") == "EndpointList"):
         device = {
@@ -62,7 +79,6 @@ def handle_asterisk_event(event, manager, hass, entry):
 
     hass.data[DOMAIN][entry.entry_id]["devices"].append(device)
 
-
 async def async_setup_entry(hass, entry):
     """Your controller/hub specific code."""
 
@@ -73,7 +89,7 @@ async def async_setup_entry(hass, entry):
             call.data.get("channel")
         )
         
-        _LOGGER.info("Originate response: ", response)
+        _LOGGER.info("Hangup response: ", response)
 
     async def originate_service(call) -> None:
         "Handle the service call."
@@ -105,7 +121,6 @@ async def async_setup_entry(hass, entry):
     username = entry.data[CONF_USERNAME]
     password = entry.data[CONF_PASSWORD]
 
-    _LOGGER.info("Asterisk component is now set up")
     try:
         manager.connect(host, port)
         manager.login(username, password)
@@ -114,15 +129,13 @@ async def async_setup_entry(hass, entry):
             "manager": manager
         }
         _LOGGER.info("Successfully connected to Asterisk server")
+
+        manager.register_event("Shutdown", lambda event, manager=manager, hass=hass, entry=entry: handle_shutdown(event, manager, hass, entry))
         manager.register_event("PeerEntry", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
-        manager.sippeers()
-
         manager.register_event("EndpointList", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
-        cdict = {"Action": "PJSIPShowEndpoints"}
-        manager.send_action(cdict)
+        manager.sippeers()                                    # Get all SIP peers
+        manager.send_action({"Action": "PJSIPShowEndpoints"}) # Get all PJSIP endpoints
 
-        sleep(5)
-        
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(
                 entry, "sensor"
@@ -132,5 +145,4 @@ async def async_setup_entry(hass, entry):
         return True
     except asterisk.manager.ManagerException as exception:
         _LOGGER.error("Error connecting to Asterisk: %s", exception.args[1])
-        _LOGGER.error(f"Host: {host}, Port: {port}, Username: {username}, Password: {password}")
         return False
