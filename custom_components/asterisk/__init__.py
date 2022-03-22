@@ -85,7 +85,7 @@ async def async_setup_entry(hass, entry):
             call.data.get("exten"),
             call.data.get("context"),
             call.data.get("priority"),
-            call.data.get("timeout"),
+            call.data.get("timeout") * 1000,
             call.data.get("application"),
             call.data.get("data"),
             call.data.get("caller_id"),
