@@ -44,19 +44,19 @@ PLATFORMS = ["sensor"]
 
 _LOGGER = logging.getLogger(__name__)
 
-def handle_shutdown(self, event, astmanager):
+def handle_shutdown(event, manager, hass, entry):
     _LOGGER.error("Asterisk shutting down.")
 
-    host = self._entry.data[CONF_HOST]
-    port = self._entry.data[CONF_PORT]
-    username = self._entry.data[CONF_USERNAME]
-    password = self._entry.data[CONF_PASSWORD]
+    host = entry.data[CONF_HOST]
+    port = entry.data[CONF_PORT]
+    username = entry.data[CONF_USERNAME]
+    password = entry.data[CONF_PASSWORD]
 
     while True:
         sleep(30)
         try:
-            self._astmanager.connect(host, port)
-            self._astmanager.login(username, password)
+            manager.connect(host, port)
+            manager.login(username, password)
             _LOGGER.info("Succesfully reconnected.")
             break
         except asterisk.manager.ManagerException as exception:
