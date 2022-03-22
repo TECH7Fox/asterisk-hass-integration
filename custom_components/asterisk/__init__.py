@@ -1,6 +1,7 @@
 """Astisk Component."""
 import logging
 import json
+from operator import truediv
 from typing import Any
 
 import asterisk.manager
@@ -43,18 +44,6 @@ PLATFORMS = ["sensor"]
 
 _LOGGER = logging.getLogger(__name__)
 
-def register_static_path(app: web.Application, url_path: str, path):
-    """Register static path with CORS for Chromecast"""
-
-    async def serve_file(request):
-        return web.FileResponse(path)
-
-    route = app.router.add_route("GET", url_path, serve_file)
-    if 'allow_all_cors' in app:
-        app['allow_all_cors'](route)
-    elif 'allow_cors' in app:
-        app['allow_cors'](route)
-
 def handle_asterisk_event(event, manager, hass, entry):
     _LOGGER.error("event.headers: " + json.dumps(event.headers))
 
@@ -77,28 +66,38 @@ def handle_asterisk_event(event, manager, hass, entry):
 async def async_setup_entry(hass, entry):
     """Your controller/hub specific code."""
 
-    async def handle_hangup(call) -> None:
+    async def hangup_service(call) -> None:
         "Handle the service call."
 
-        extension = call.data.get("extension")
-
-        hass.data[DOMAIN][entry.entry_id]["manager"].hangup(extension)
-
-    hass.services.async_register(DOMAIN, "hangup", handle_hangup)
+        response = hass.data[DOMAIN][entry.entry_id]["manager"].hangup(
+            call.data.get("channel")
+        )
+        
+        _LOGGER.info("Originate response: ", response)
 
     async def originate_service(call) -> None:
         "Handle the service call."
 
+        _LOGGER.warning("originate service: " + json.dumps(call.data))
+
         response = hass.data[DOMAIN][entry.entry_id]["manager"].originate(
-            call.data.get("channel"), # SIP/101
-            call.data.get("extension"), # 101
-            call.data.get("context"), # [general]
+            call.data.get("channel"),
+            call.data.get("exten"),
+            call.data.get("context"),
             call.data.get("priority"),
-            call.data.get("timeout") * 1000,
-            call.data.get("caller_id"))
+            call.data.get("timeout"),
+            call.data.get("application"),
+            call.data.get("data"),
+            call.data.get("caller_id"),
+            True, # run_async
+            call.data.get("earlymedia"),
+            call.data.get("account"),
+            call.data.get("variables")
+        )
 
         _LOGGER.info("Originate response: ", response)
 
+    hass.services.async_register(DOMAIN, "hangup", hangup_service)
     hass.services.async_register(DOMAIN, "originate", originate_service)
 
     manager = asterisk.manager.Manager()
