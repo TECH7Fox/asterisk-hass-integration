@@ -78,8 +78,6 @@ async def async_setup_entry(hass, entry):
     async def originate_service(call) -> None:
         "Handle the service call."
 
-        _LOGGER.warning("originate service: " + json.dumps(call.data))
-
         response = hass.data[DOMAIN][entry.entry_id]["manager"].originate(
             call.data.get("channel"),
             call.data.get("exten"),
