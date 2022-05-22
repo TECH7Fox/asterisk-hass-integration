@@ -5,7 +5,8 @@ from custom_components.asterisk.server import AsteriskServer
 import voluptuous as vol
 import json
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.binary_sensor import BinarySensorEntity
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity, DeviceInfo
 from .const import DOMAIN, SW_VERSION
@@ -80,7 +81,6 @@ class AsteriskExtension(SensorEntity):
 
     def update(self):
         """Update."""
-        #self._astmanager.extension_state(self._extension, "")
         # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
 
 class AsteriskCallee(SensorEntity):
@@ -145,5 +145,117 @@ class AsteriskCallee(SensorEntity):
 
     def update(self):
         """Update."""
-        #self._astmanager.extension_state(self._extension, "")
+        # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
+
+class CurrentChannelSensor(SensorEntity):
+    """Sensor with Current Channel."""
+
+    def __init__(self, hass, extension, tech, entry):
+        """Setting up extension."""
+        self._hass = hass
+        self._extension = extension
+        self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
+        self._state = "None"
+        self._tech = tech
+        self._entry = entry
+        self._unique_id = f"{entry.entry_id}_{extension}_callee"
+        self._astmanager.register_event("Newchannel", self.handle_new_channel)
+        self._astmanager.register_event("Hangup", self.handle_hangup)
+
+    def handle_new_channel(self, event, astmanager):
+        """Handle new channel."""
+        _LOGGER.warning("new channel: " + json.dumps(event.headers))
+
+        extension = event.get_header("CallerIDNum")
+        if (self._extension == extension):
+            self._state = event.get_header("Channel")
+            self.hass.async_add_job(self.async_update_ha_state())
+
+    def handle_hangup(self, event, astmanager):
+        """Handle Hangup."""
+        _LOGGER.warning("new channel: " + json.dumps(event.headers))
+
+        extension = event.get_header("CallerIDNum")
+        if (self._extension == extension):
+            self._state = "None"
+            self.hass.async_add_job(self.async_update_ha_state())
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique id for this instance."""
+        return self._unique_id
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return {
+            "identifiers": {(DOMAIN, f"{self._entry.entry_id}_{self._extension}")},
+            "name": f"Extension {self._extension}",
+            "manufacturer": "Asterisk",
+            "model": self._tech,
+            "sw_version": SW_VERSION,
+            "via_device": (DOMAIN, self._entry.entry_id),
+        }
+
+    @property
+    def name(self):
+        """Channel."""
+        return f"{self._extension} Channel"
+
+    @property
+    def state(self):
+        """Channel."""
+        return self._state
+
+    def update(self):
+        """Update."""
+        # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
+
+class RegisteredSensor(BinarySensorEntity):
+    """Binary Sensor with Registered."""
+
+    def __init__(self, hass, extension, tech, entry):
+        """Setting up extension."""
+        self._hass = hass
+        self._extension = extension
+        self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
+        self._state = "None"
+        self._tech = tech
+        self._entry = entry
+        self._unique_id = f"{entry.entry_id}_{extension}_registered"
+        self._astmanager.register_event("ExtensionStatus", self.handle_asterisk_event)
+
+    def handle_status_event(self, event, astmanager):
+        """Handle Extension Status Event."""
+        status = event.get_header("StatusText")
+        self._state = (status != "Unavailable" and status != "Unknown")
+        self.hass.async_add_job(self.async_update_ha_state())
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique id for this instance."""
+        return self._unique_id
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return {
+            "identifiers": {(DOMAIN, f"{self._entry.entry_id}_{self._extension}")},
+            "name": f"Extension {self._extension}",
+            "manufacturer": "Asterisk",
+            "model": self._tech,
+            "sw_version": SW_VERSION,
+            "via_device": (DOMAIN, self._entry.entry_id),
+        }
+
+    @property
+    def name(self):
+        """Registered."""
+        return f"{self._extension} Registered"
+
+    @property
+    def state(self):
+        """Registered."""
+        return self._state
+
+    def update(self):
+        """Update."""
         # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
