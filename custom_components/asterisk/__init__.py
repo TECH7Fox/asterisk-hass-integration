@@ -68,13 +68,13 @@ def handle_asterisk_event(event, manager, hass, entry):
     if (event.get_header("Event") == "EndpointList"):
         device = {
             "extension": event.get_header("ObjectName"),
-            "status": event.get_header("State"),
+            "status": event.get_header("DeviceState"),
             "tech": "PJSIP"
         }
     else:
         device = {
             "extension": event.get_header("ObjectName"),
-            "status": event.get_header("State"),
+            "status": event.get_header("DeviceState"),
             "tech": event.get_header("Channeltype")
         }
 
