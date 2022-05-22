@@ -81,8 +81,8 @@ class AsteriskExtension(SensorEntity):
 
     def update(self):
         """Update."""
-        result = self._astmanager.extension_state(self._extension,"")
-        self._state = result.get_header("StatusText")
+        #result = self._astmanager.extension_state(self._extension,"")
+        #self._state = result.get_header("StatusText")
         # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
 
 class AsteriskCallee(SensorEntity):
@@ -228,6 +228,7 @@ class RegisteredSensor(BinarySensorEntity):
 
     def handle_status_event(self, event, astmanager):
         """Handle Extension Status Event."""
+        _LOGGER.warning("registered extensionStatus event: " + json.dumps(event.headers))
         status = event.get_header("StatusText")
         self._state = (status != "Unavailable" and status != "Unknown")
         self.hass.async_add_job(self.async_update_ha_state())
@@ -260,6 +261,6 @@ class RegisteredSensor(BinarySensorEntity):
 
     def update(self):
         """Update."""
-        result = self._astmanager.extension_state(self._extension,"")
-        self._state = result.get_header("StatusText")
+        #result = self._astmanager.extension_state(self._extension,"")
+        #self._state = result.get_header("StatusText")
         # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
