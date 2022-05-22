@@ -81,6 +81,8 @@ class AsteriskExtension(SensorEntity):
 
     def update(self):
         """Update."""
+        result = self._astmanager.extension_state(self._extension,"")
+        self._state = result.get_header("StatusText")
         # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
 
 class AsteriskCallee(SensorEntity):
@@ -173,7 +175,7 @@ class CurrentChannelSensor(SensorEntity):
 
     def handle_hangup(self, event, astmanager):
         """Handle Hangup."""
-        _LOGGER.warning("new channel: " + json.dumps(event.headers))
+        _LOGGER.warning("new hangup: " + json.dumps(event.headers))
 
         extension = event.get_header("CallerIDNum")
         if (self._extension == extension):
@@ -258,4 +260,6 @@ class RegisteredSensor(BinarySensorEntity):
 
     def update(self):
         """Update."""
+        result = self._astmanager.extension_state(self._extension,"")
+        self._state = result.get_header("StatusText")
         # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
