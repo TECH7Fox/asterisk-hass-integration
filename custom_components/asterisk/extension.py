@@ -224,7 +224,7 @@ class RegisteredSensor(BinarySensorEntity):
         self._tech = tech
         self._entry = entry
         self._unique_id = f"{entry.entry_id}_{extension}_registered"
-        self._astmanager.register_event("ExtensionStatus", self.handle_asterisk_event)
+        self._astmanager.register_event("ExtensionStatus", self.handle_status_event)
 
     def handle_status_event(self, event, astmanager):
         """Handle Extension Status Event."""
