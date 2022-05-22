@@ -160,7 +160,7 @@ class CurrentChannelSensor(SensorEntity):
         self._state = "None"
         self._tech = tech
         self._entry = entry
-        self._unique_id = f"{entry.entry_id}_{extension}_callee"
+        self._unique_id = f"{entry.entry_id}_{extension}_channel"
         self._astmanager.register_event("Newchannel", self.handle_new_channel)
         self._astmanager.register_event("Hangup", self.handle_hangup)
 
