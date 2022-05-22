@@ -221,6 +221,7 @@ class RegisteredSensor(BinarySensorEntity):
         self._extension = extension
         self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
         self._state = (status != "Unavailable" and status != "Unknown")
+        _LOGGER.error("registered state: " + self._state + " status: " + status)
         self._tech = tech
         self._entry = entry
         self._unique_id = f"{entry.entry_id}_{extension}_registered"
