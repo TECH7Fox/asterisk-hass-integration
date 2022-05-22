@@ -22,10 +22,7 @@ class AsteriskExtension(SensorEntity):
         self._hass = hass
         self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
         self._extension = extension
-        if (status != "Unknown"):
-            self._state = "Idle"
-        else:
-            self._state = "Unknown"
+        self._state = status
         self._tech = tech
         self._entry = entry
         self._unique_id = f"{entry.entry_id}_{extension}_state"
