@@ -255,7 +255,7 @@ class RegisteredSensor(BinarySensorEntity):
         return f"{self._extension} Registered"
 
     @property
-    def state(self):
+    def is_on(self):
         """Registered."""
         return self._state
 

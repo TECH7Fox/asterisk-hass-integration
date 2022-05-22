@@ -143,6 +143,12 @@ async def async_setup_entry(hass, entry):
             )
         )
 
+        hass.async_create_task(
+            hass.config_entries.async_forward_entry_setup(
+                entry, "binary_sensor"
+            )
+        )
+
         return True
     except asterisk.manager.ManagerException as exception:
         _LOGGER.error("Error connecting to Asterisk: %s", exception.args[1])
