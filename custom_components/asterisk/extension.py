@@ -215,12 +215,12 @@ class CurrentChannelSensor(SensorEntity):
 class RegisteredSensor(BinarySensorEntity):
     """Binary Sensor with Registered."""
 
-    def __init__(self, hass, extension, tech, entry):
+    def __init__(self, hass, status, extension, tech, entry):
         """Setting up extension."""
         self._hass = hass
         self._extension = extension
         self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
-        self._state = "None"
+        self._state = (status != "Unavailable" and status != "Unknown")
         self._tech = tech
         self._entry = entry
         self._unique_id = f"{entry.entry_id}_{extension}_registered"

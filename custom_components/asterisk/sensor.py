@@ -28,5 +28,5 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entities.append(AsteriskExtension(hass, device["status"], device["extension"], device["tech"], entry))
         entities.append(AsteriskCallee(hass, device["extension"], device["tech"], entry))
         entities.append(CurrentChannelSensor(hass, device["extension"], device["tech"], entry))
-        entities.append(RegisteredSensor(hass, device["extension"], device["tech"], entry))
+        entities.append(RegisteredSensor(hass, device["status"], device["extension"], device["tech"], entry))
     async_add_entities(entities, True)
