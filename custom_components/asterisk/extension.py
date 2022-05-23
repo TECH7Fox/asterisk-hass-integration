@@ -27,16 +27,12 @@ class AsteriskExtension(SensorEntity):
         self._entry = entry
         self._unique_id = f"{entry.entry_id}_{extension}_state"
         self._astmanager.register_event("EndpointDetail", self.handle_asterisk_event)
-        _LOGGER.info("Asterisk extension device initialized")
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
-        _LOGGER.warning("extension update: " + json.dumps(event.headers))
-
         extension = event.get_header("ObjectName")
         status = event.get_header("DeviceState")
         if extension == self._extension:
-            _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
             self._state = status
             if (status == "InUse"):
                 event_data = {
@@ -95,8 +91,6 @@ class AsteriskCallee(SensorEntity):
 
     def handle_new_channel(self, event, astmanager):
         """Handle new channel."""
-        _LOGGER.warning("new channel: " + json.dumps(event.headers))
-
         extension = event.get_header("CallerIDNum")
         if (self._extension == extension):
             self._state = event.get_header("Exten")
@@ -104,9 +98,6 @@ class AsteriskCallee(SensorEntity):
 
     def handle_hangup(self, event, astmanager):
         """Handle hangup."""
-
-        _LOGGER.warning("new hangup: " + json.dumps(event.headers))
-
         extension = event.get_header("CallerIDNum")
         if (self._extension == extension):
             self._state = "None"
@@ -138,10 +129,6 @@ class AsteriskCallee(SensorEntity):
         """Callee number."""
         return self._state
 
-    def update(self):
-        """Update."""
-        # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
-
 class CurrentChannelSensor(SensorEntity):
     """Sensor with Current Channel."""
 
@@ -159,8 +146,6 @@ class CurrentChannelSensor(SensorEntity):
 
     def handle_new_channel(self, event, astmanager):
         """Handle new channel."""
-        _LOGGER.warning("new channel: " + json.dumps(event.headers))
-
         extension = event.get_header("CallerIDNum")
         if (self._extension == extension):
             self._state = event.get_header("Channel")
@@ -168,8 +153,6 @@ class CurrentChannelSensor(SensorEntity):
 
     def handle_hangup(self, event, astmanager):
         """Handle Hangup."""
-        _LOGGER.warning("new hangup: " + json.dumps(event.headers))
-
         extension = event.get_header("CallerIDNum")
         if (self._extension == extension):
             self._state = "None"
@@ -201,10 +184,6 @@ class CurrentChannelSensor(SensorEntity):
         """Channel."""
         return self._state
 
-    def update(self):
-        """Update."""
-        # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
-
 class RegisteredSensor(BinarySensorEntity):
     """Binary Sensor with Registered."""
 
@@ -221,12 +200,9 @@ class RegisteredSensor(BinarySensorEntity):
 
     def handle_status_event(self, event, astmanager):
         """Handle Extension Status Event."""
-        _LOGGER.warning("registered sensor update: " + json.dumps(event.headers))
-
         extension = event.get_header("ObjectName")
         status = event.get_header("DeviceState")
         if extension == self._extension:
-            _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
             self._state = (status != "Unavailable" and status != "Unknown")
             self.hass.async_add_job(self.async_update_ha_state())
 
