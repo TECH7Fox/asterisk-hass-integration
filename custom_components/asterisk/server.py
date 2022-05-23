@@ -56,7 +56,7 @@ class ChannelDTMF(SensorEntity):
     @property
     def device_info(self) -> DeviceInfo:
         return {
-            "identifiers": {(DOMAIN, self._unique_id)},
+            "identifiers": {(DOMAIN, f"{self._entry.entry_id}_server")},
             "name": "Asterisk Server",
             "manufacturer": "Asterisk",
             "model": "Server",
@@ -98,7 +98,7 @@ class AsteriskServer(SensorEntity):
     @property
     def device_info(self) -> DeviceInfo:
         return {
-            "identifiers": {(DOMAIN, self._unique_id)},
+            "identifiers": {(DOMAIN, f"{self._entry.entry_id}_server")},
             "name": "Asterisk Server",
             "manufacturer": "Asterisk",
             "model": "Server",
