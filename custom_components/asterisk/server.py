@@ -23,7 +23,7 @@ class ChannelDTMF(SensorEntity):
         self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
         self._state = "Unknown"
         self._entry = entry
-        self._unique_id = entry.entry_id
+        self._unique_id = f"{entry.entry_id}_dtmf"
         self._dtmf = {
             "channel": None,
             "digit": None,
@@ -57,7 +57,7 @@ class ChannelDTMF(SensorEntity):
     def device_info(self) -> DeviceInfo:
         return {
             "identifiers": {(DOMAIN, self._unique_id)},
-            "name": self.name,
+            "name": "Asterisk Server",
             "manufacturer": "Asterisk",
             "model": "Server",
             "configuration_url": f"http://{self._entry.data[CONF_HOST]}",
@@ -88,7 +88,7 @@ class AsteriskServer(SensorEntity):
         self._astmanager = hass.data[DOMAIN][entry.entry_id]["manager"]
         self._state = "Unknown"
         self._entry = entry
-        self._unique_id = entry.entry_id
+        self._unique_id = f"{entry.entry_id}_server"
 
     @property
     def unique_id(self) -> str:
@@ -99,7 +99,7 @@ class AsteriskServer(SensorEntity):
     def device_info(self) -> DeviceInfo:
         return {
             "identifiers": {(DOMAIN, self._unique_id)},
-            "name": self.name,
+            "name": "Asterisk Server",
             "manufacturer": "Asterisk",
             "model": "Server",
             "configuration_url": f"http://{self._entry.data[CONF_HOST]}",
@@ -109,7 +109,7 @@ class AsteriskServer(SensorEntity):
     @property
     def name(self):
         """Extension name."""
-        return f"PBX Server"
+        return f"Asterisk Server"
 
     @property
     def state(self):
