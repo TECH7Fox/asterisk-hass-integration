@@ -26,22 +26,18 @@ class AsteriskExtension(SensorEntity):
         self._tech = tech
         self._entry = entry
         self._unique_id = f"{entry.entry_id}_{extension}_state"
-        self._astmanager.register_event("ExtensionStatus", self.handle_asterisk_event)
+        self._astmanager.register_event("EndpointDetail", self.handle_asterisk_event)
         _LOGGER.info("Asterisk extension device initialized")
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
         _LOGGER.warning("extension update: " + json.dumps(event.headers))
 
-        extension = event.get_header("Exten")
-        status = event.get_header("StatusText")
-        tech = event.get_header("Channeltype")
+        extension = event.get_header("ObjectName")
+        status = event.get_header("DeviceState")
         if extension == self._extension:
             _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
-            if (status == "Unknown"): # Fix for Asterisk bug
-                status = "Idle"
             self._state = status
-            self._tech = tech
             if (status == "InUse"):
                 event_data = {
                     "device_id": self.unique_id,
@@ -78,9 +74,9 @@ class AsteriskExtension(SensorEntity):
 
     def update(self):
         """Update."""
-        #result = self._astmanager.extension_state(self._extension,"")
-        #self._state = result.get_header("StatusText")
-        # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
+        cdict = {"Action": "PJSIPShowEndpoint",
+                 "Endpoint": self._extension}
+        self._astmanager.send_action(cdict)
 
 class AsteriskCallee(SensorEntity):
     """Entity for a Asterisk extension."""
@@ -221,14 +217,18 @@ class RegisteredSensor(BinarySensorEntity):
         self._tech = tech
         self._entry = entry
         self._unique_id = f"{entry.entry_id}_{extension}_registered"
-        self._astmanager.register_event("ExtensionStatus", self.handle_status_event)
+        self._astmanager.register_event("EndpointDetail", self.handle_status_event)
 
     def handle_status_event(self, event, astmanager):
         """Handle Extension Status Event."""
-        _LOGGER.warning("registered extensionStatus event: " + json.dumps(event.headers))
-        status = event.get_header("StatusText")
-        self._state = (status != "Unavailable" and status != "Unknown")
-        self.hass.async_add_job(self.async_update_ha_state())
+        _LOGGER.warning("registered sensor update: " + json.dumps(event.headers))
+
+        extension = event.get_header("ObjectName")
+        status = event.get_header("DeviceState")
+        if extension == self._extension:
+            _LOGGER.info(f"Got asterisk event for extension {extension}: {status}")
+            self._state = (status != "Unavailable" and status != "Unknown")
+            self.hass.async_add_job(self.async_update_ha_state())
 
     @property
     def unique_id(self) -> str:
@@ -258,6 +258,6 @@ class RegisteredSensor(BinarySensorEntity):
 
     def update(self):
         """Update."""
-        #result = self._astmanager.extension_state(self._extension,"")
-        #self._state = result.get_header("StatusText")
-        # _LOGGER.error(f"Extension: {self._extension}, updated status: {result.get_header('Status')}") # temp
+        cdict = {"Action": "PJSIPShowEndpoint",
+                 "Endpoint": self._extension}
+        self._astmanager.send_action(cdict)
