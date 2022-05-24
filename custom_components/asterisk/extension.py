@@ -55,7 +55,7 @@ class AsteriskExtension(SensorEntity):
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
-            "via_device": (DOMAIN, self._entry.entry_id),
+            "via_device": (DOMAIN, f"{self._entry.entry_id}_server"),
         }
 
     @property
@@ -116,7 +116,7 @@ class AsteriskCallee(SensorEntity):
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
-            "via_device": (DOMAIN, self._entry.entry_id),
+            "via_device": (DOMAIN, f"{self._entry.entry_id}_server"),
         }
 
     @property
@@ -171,7 +171,7 @@ class CurrentChannelSensor(SensorEntity):
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
-            "via_device": (DOMAIN, self._entry.entry_id),
+            "via_device": (DOMAIN, f"{self._entry.entry_id}_server"),
         }
 
     @property
@@ -219,7 +219,7 @@ class RegisteredSensor(BinarySensorEntity):
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
-            "via_device": (DOMAIN, self._entry.entry_id),
+            "via_device": (DOMAIN, f"{self._entry.entry_id}_server"),
         }
 
     @property
