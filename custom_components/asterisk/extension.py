@@ -93,7 +93,7 @@ class AsteriskCallee(SensorEntity):
         """Handle new channel."""
         extension = event.get_header("CallerIDNum")
         if (self._extension == extension):
-            self._state = event.get_header("Exten")
+            self._state = event.get_header("ConnectedLineName")
             self.hass.async_add_job(self.async_update_ha_state())
 
     def handle_hangup(self, event, astmanager):
