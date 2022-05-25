@@ -1,7 +1,7 @@
 """Asterisk platform."""
 import logging
-from custom_components.asterisk.server import AsteriskServer, ChannelDTMF
-from custom_components.asterisk.extension import AsteriskExtension, AsteriskCallee, CurrentChannelSensor
+from custom_components.asterisk.server import AsteriskServer
+from custom_components.asterisk.extension import RegisteredSensor
 
 import voluptuous as vol
 import json
@@ -22,10 +22,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
     """Setting up every extension."""
     devices = hass.data[DOMAIN][entry.entry_id]["devices"]
 
-    entities = [AsteriskServer(hass, entry), ChannelDTMF(hass, entry)]
+    entities = []
     for device in devices:
-        _LOGGER.info(f"Setting up asterisk extension device for extension {device['tech']}{device['extension']}")
-        entities.append(AsteriskExtension(hass, device["status"], device["extension"], device["tech"], entry))
-        entities.append(AsteriskCallee(hass, device["extension"], device["tech"], entry))
-        entities.append(CurrentChannelSensor(hass, device["extension"], device["tech"], entry))
+        _LOGGER.info(f"Setting up binary sensors for extension {device['tech']}{device['extension']}")
+        entities.append(RegisteredSensor(hass, device["status"], device["extension"], device["tech"], entry))
     async_add_entities(entities, True)

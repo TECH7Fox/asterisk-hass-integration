@@ -45,27 +45,27 @@ originate:
         text:
     timeout:
       name: Timeout
-      description: How long to wait for call to be answered (in ms)
+      description: How long to wait for call to be answered (in seconds)
       required: false
       example: 60
-      selector:
-        text:
-    application:
-      name: Application
-      description: Application to execute
-      required: false
       selector:
         number:
           min: 0
           max: 999
           unit_of_measurement: seconds
           mode: slider
+    application:
+      name: Application
+      description: Application to execute
+      required: false
+      selector:
+        text:
     data:
       name: Data
       description: Data to use (requires Application)
       required: false
       selector:
-        text:
+        object:
     caller_id:
       name: CallerID
       description: CallerID to be set on the outgoing channel
