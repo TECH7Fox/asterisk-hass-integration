@@ -35,6 +35,7 @@ class ChannelDTMF(SensorEntity):
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
+        _LOGGER.warning("DTMF update: " + json.dumps(event.headers))
         extension = event.get_header("CallerIDNum")
         direction = event.get_header("Direction")
         if direction == "Sent":
