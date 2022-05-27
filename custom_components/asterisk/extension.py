@@ -26,20 +26,14 @@ class AsteriskExtension(SensorEntity):
         self._tech = tech
         self._entry = entry
         self._unique_id = f"{entry.entry_id}_{extension}_state"
-        self._astmanager.register_event("EndpointDetail", self.handle_asterisk_event)
+        self._astmanager.register_event("DeviceStateChange", self.handle_asterisk_event)
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
-        extension = event.get_header("ObjectName")
-        status = event.get_header("DeviceState")
+        _LOGGER.warning("extension update: " + json.dumps(event.headers))
+        extension = event.get_header("Device")
         if extension == self._extension:
-            self._state = status
-            if (status == "InUse"):
-                event_data = {
-                    "device_id": self.unique_id,
-                    "type": "extension_inuse",
-                }
-                self._hass.bus.async_fire("asterisk_event", event_data)
+            self._state = event.get_header("State")
             self.hass.async_add_job(self.async_update_ha_state())
 
     @property
