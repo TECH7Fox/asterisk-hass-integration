@@ -78,12 +78,13 @@ class AsteriskCallee(SensorEntity):
         self._unique_id = f"{entry.entry_id}_{extension}_callee"
         self._astmanager.register_event("Newchannel", self.handle_new_channel)
         self._astmanager.register_event("Hangup", self.handle_hangup)
+        self._astmanager.register_event("NewConnectedLine", self.handle_connected)
 
     def handle_new_channel(self, event, astmanager):
         """Handle new channel."""
         extension = event.get_header("CallerIDNum")
         if (self._extension == extension):
-            self._state = event.get_header("ConnectedLineName")
+            self._state = event.get_header("ConnectedLineNum")
             self.hass.async_add_job(self.async_update_ha_state())
 
     def handle_hangup(self, event, astmanager):
@@ -91,6 +92,15 @@ class AsteriskCallee(SensorEntity):
         extension = event.get_header("CallerIDNum")
         if (self._extension == extension):
             self._state = "None"
+            self.hass.async_add_job(self.async_update_ha_state())
+
+    def handle_connected(self, event, astmanager):
+        """Handle New Connected Line."""
+        if (self._extension == event.get_header("CallerIDNum")):
+            self._state = event.get_header("ConnectedLineNum")
+            self.hass.async_add_job(self.async_update_ha_state())
+        elif (self._extension == event.get_header("ConnectedLineNum")):
+            self._state = event.get_header("CallerIDNum")
             self.hass.async_add_job(self.async_update_ha_state())
 
     @property
@@ -133,6 +143,7 @@ class CurrentChannelSensor(SensorEntity):
         self._unique_id = f"{entry.entry_id}_{extension}_channel"
         self._astmanager.register_event("Newchannel", self.handle_new_channel)
         self._astmanager.register_event("Hangup", self.handle_hangup)
+        self._astmanager.register_event("NewConnectedLine", self.handle_connected)
 
     def handle_new_channel(self, event, astmanager):
         """Handle new channel."""
@@ -143,9 +154,14 @@ class CurrentChannelSensor(SensorEntity):
 
     def handle_hangup(self, event, astmanager):
         """Handle Hangup."""
-        extension = event.get_header("CallerIDNum")
-        if (self._extension == extension):
+        if (self._extension == event.get_header("CallerIDNum") or self._extension == event.get_header("ConnectedLineNum")):
             self._state = "None"
+            self.hass.async_add_job(self.async_update_ha_state())
+
+    def handle_connected(self, event, astmanager):
+        """Handle New Connected Line."""
+        if (self._extension == event.get_header("ConnectedLineNum")):
+            self._state = event.get_header("Channel")
             self.hass.async_add_job(self.async_update_ha_state())
 
     @property
