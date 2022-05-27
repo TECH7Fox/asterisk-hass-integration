@@ -44,7 +44,7 @@ class AsteriskExtension(SensorEntity):
     def device_info(self) -> DeviceInfo:
         return {
             "identifiers": {(DOMAIN, f"{self._entry.entry_id}_{self._extension}")},
-            "name": f"Extension {self._extension}",
+            "name": f"{self._tech}/{self._extension}",
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
@@ -102,7 +102,7 @@ class AsteriskCallee(SensorEntity):
     def device_info(self) -> DeviceInfo:
         return {
             "identifiers": {(DOMAIN, f"{self._entry.entry_id}_{self._extension}")},
-            "name": f"Extension {self._extension}",
+            "name": f"{self._tech}/{self._extension}",
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
@@ -157,7 +157,7 @@ class CurrentChannelSensor(SensorEntity):
     def device_info(self) -> DeviceInfo:
         return {
             "identifiers": {(DOMAIN, f"{self._entry.entry_id}_{self._extension}")},
-            "name": f"Extension {self._extension}",
+            "name": f"{self._tech}/{self._extension}",
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
@@ -205,7 +205,7 @@ class RegisteredSensor(BinarySensorEntity):
     def device_info(self) -> DeviceInfo:
         return {
             "identifiers": {(DOMAIN, f"{self._entry.entry_id}_{self._extension}")},
-            "name": f"Extension {self._extension}",
+            "name": f"{self._tech}/{self._extension}",
             "manufacturer": "Asterisk",
             "model": self._tech,
             "sw_version": SW_VERSION,
