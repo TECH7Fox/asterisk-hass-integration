@@ -30,9 +30,8 @@ class AsteriskExtension(SensorEntity):
 
     def handle_asterisk_event(self, event, astmanager):
         """Handle events."""
-        _LOGGER.warning("extension update: " + json.dumps(event.headers))
         extension = event.get_header("Device")
-        if extension == self._extension:
+        if extension == f"{self._tech}/{self._extension}":
             self._state = event.get_header("State")
             self.hass.async_add_job(self.async_update_ha_state())
 
@@ -64,9 +63,6 @@ class AsteriskExtension(SensorEntity):
 
     def update(self):
         """Update."""
-        cdict = {"Action": "PJSIPShowEndpoint",
-                 "Endpoint": self._extension}
-        self._astmanager.send_action(cdict)
 
 class AsteriskCallee(SensorEntity):
     """Entity for a Asterisk extension."""

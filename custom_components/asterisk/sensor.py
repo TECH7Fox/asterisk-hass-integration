@@ -25,7 +25,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     entities = [AsteriskServer(hass, entry), ChannelDTMF(hass, entry)]
     for device in devices:
         _LOGGER.info(f"Setting up asterisk extension device for extension {device['tech']}{device['extension']}")
-        entities.append(AsteriskExtension(hass, device["status"], device["extension"], device["tech"], entry))
+        entities.append(AsteriskExtension(hass, device["status"].upper(), device["extension"], device["tech"], entry))
         entities.append(AsteriskCallee(hass, device["extension"], device["tech"], entry))
         entities.append(CurrentChannelSensor(hass, device["extension"], device["tech"], entry))
     async_add_entities(entities, True)
