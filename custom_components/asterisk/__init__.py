@@ -74,7 +74,7 @@ def handle_asterisk_event(event, manager, hass, entry):
     else:
         device = {
             "extension": event.get_header("ObjectName"),
-            "status": event.get_header("DeviceState"),
+            "status": event.get_header("Status"),
             "tech": event.get_header("Channeltype")
         }
 
