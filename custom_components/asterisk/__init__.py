@@ -51,6 +51,11 @@ def handle_shutdown(event, manager, hass, entry):
     host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]
 
+    # Restart the integration
+    hass.async_create_task(
+        hass.config_entries.async_reload(entry.entry_id)
+    )
+
     raise ConfigEntryNotReady(f"Asterisk at {host}:{port} shutting down.")
 
 def handle_asterisk_event(event, manager, hass, entry):
