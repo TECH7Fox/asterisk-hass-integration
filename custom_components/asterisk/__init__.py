@@ -18,6 +18,7 @@ from pathlib import Path
 from homeassistant.helpers.typing import HomeAssistantType
 from shutil import Error, copy, copyfile
 from .const import DOMAIN
+from homeassistant.config_entries import ConfigEntryNotReady
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 5038
@@ -49,19 +50,8 @@ def handle_shutdown(event, manager, hass, entry):
 
     host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]
-    username = entry.data[CONF_USERNAME]
-    password = entry.data[CONF_PASSWORD]
 
-    while True:
-        sleep(30)
-        try:
-            manager.close()
-            manager.connect(host, port)
-            manager.login(username, password)
-            _LOGGER.info("Succesfully reconnected.")
-            break
-        except asterisk.manager.ManagerException as exception:
-            _LOGGER.error("Error reconnecting to Asterisk: %s", exception.args[1])
+    raise ConfigEntryNotReady(f"Asterisk at {host}:{port} shutting down.")
 
 def handle_asterisk_event(event, manager, hass, entry):
 
@@ -151,5 +141,4 @@ async def async_setup_entry(hass, entry):
 
         return True
     except asterisk.manager.ManagerException as exception:
-        _LOGGER.error("Error connecting to Asterisk: %s", exception.args[1])
-        return False
+        raise ConfigEntryNotReady(f"Connection error while connecting to {host}:{port}: {exception.args[1]}")
