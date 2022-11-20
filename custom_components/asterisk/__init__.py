@@ -45,16 +45,14 @@ PLATFORMS = ["sensor"]
 
 _LOGGER = logging.getLogger(__name__)
 
-def handle_shutdown(event, manager, hass, entry):
+async def handle_shutdown(event, manager, hass, entry):
     _LOGGER.warning("Asterisk shutting down.")
 
     host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]
 
     # Restart the integration
-    hass.async_create_task(
-        hass.config_entries.async_reload(entry.entry_id)
-    )
+    await hass.config_entries.async_reload(entry.entry_id)
 
 def handle_asterisk_event(event, manager, hass, entry):
 
