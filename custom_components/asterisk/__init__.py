@@ -68,6 +68,21 @@ def handle_asterisk_event(event, manager, hass, entry):
         }
 
     hass.data[DOMAIN][entry.entry_id]["devices"].append(device)
+    
+def handle_asterisk_endpointlistcomplete_event(event, manager, hass, entry):
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setup(
+            entry, "sensor"
+        )
+    )
+
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setup(
+            entry, "binary_sensor"
+        )
+    )
+
+    _LOGGER.info(f"EndpointListComplete")
 
 async def async_setup_entry(hass, entry):
     """Your controller/hub specific code."""
@@ -123,20 +138,10 @@ async def async_setup_entry(hass, entry):
         manager.register_event("Shutdown", lambda event, manager=manager, hass=hass, entry=entry: handle_shutdown(event, manager, hass, entry))
         manager.register_event("PeerEntry", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
         manager.register_event("EndpointList", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
+        manager.register_event("EndpointListComplete", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_endpointlistcompleteevent(event, manager, hass, entry))
         manager.sippeers()                                    # Get all SIP peers
         manager.send_action({"Action": "PJSIPShowEndpoints"}) # Get all PJSIP endpoints
 
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(
-                entry, "sensor"
-            )
-        )
-
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(
-                entry, "binary_sensor"
-            )
-        )
 
         return True
     except asterisk.manager.ManagerException as exception:
