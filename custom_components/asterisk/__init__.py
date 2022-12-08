@@ -139,7 +139,7 @@ async def async_setup_entry(hass, entry):
         manager.register_event("Shutdown", lambda event, manager=manager, hass=hass, entry=entry: handle_shutdown(event, manager, hass, entry))
         manager.register_event("PeerEntry", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
         manager.register_event("EndpointList", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
-        manager.register_event("EndpointListComplete", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_endpointlistcompleteevent(event, manager, hass, entry))
+        manager.register_event("EndpointListComplete", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_endpointlistcomplete_event(event, manager, hass, entry))
         manager.sippeers()                                    # Get all SIP peers
         manager.send_action({"Action": "PJSIPShowEndpoints"}) # Get all PJSIP endpoints
 
