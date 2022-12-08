@@ -1,4 +1,5 @@
 """Astisk Component."""
+import asyncio
 import logging
 import json
 from operator import truediv
@@ -146,3 +147,28 @@ async def async_setup_entry(hass, entry):
         return True
     except asterisk.manager.ManagerException as exception:
         raise ConfigEntryNotReady(f"Connection error while connecting to {host}:{port}: {exception.args[1]}")
+
+async def async_unload_entry(hass, entry) -> bool:
+    """Handle removal of an entry."""
+    data = hass.data[DOMAIN][entry.entry_id]
+    manager = hass.data[DOMAIN][entry.entry_id]["manager"]
+    manager.close()
+
+    unloaded = all(
+        await asyncio.gather(
+            *[
+                hass.config_entries.async_forward_entry_unload(entry, "sensor"),
+                hass.config_entries.async_forward_entry_unload(entry, "binary_sensor")
+            ]
+        )
+     )
+
+    if unloaded:
+       hass.data[DOMAIN].pop(entry.entry_id)
+
+    return unloaded
+
+async def async_reload_entry(hass, entry) -> None:
+    """Reload config entry."""
+    await async_unload_entry(hass, entry)
+    await async_setup_entry(hass, entry)
