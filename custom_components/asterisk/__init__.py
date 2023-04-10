@@ -1,174 +1,123 @@
-"""Astisk Component."""
 import asyncio
-import logging
-import json
-from operator import truediv
-from typing import Any
-
-import asterisk.manager
-import voluptuous as vol
-from time import sleep
-import os
-
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
-import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers import device_registry as dr
-from aiohttp import web
-from pathlib import Path
-from homeassistant.helpers.typing import HomeAssistantType
-from shutil import Error, copy, copyfile
-from .const import DOMAIN
-from homeassistant.config_entries import ConfigEntryNotReady
-
-DEFAULT_HOST = "127.0.0.1"
-DEFAULT_PORT = 5038
-DEFAULT_USERNAME = "admin"
-DEFAULT_PASSWORD = "manager"
-
-DATA_ASTERISK = "asterisk_manager"
-
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required(CONF_HOST): cv.string,
-                vol.Required(CONF_PORT): cv.port,
-                vol.Required(CONF_USERNAME): cv.string,
-                vol.Required(CONF_PASSWORD): cv.string,
-            }
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
+from homeassistant.const import CONF_HOST, CONF_PORT, CONF_USERNAME, CONF_PASSWORD, CONF_DEVICES
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import (
+    ConfigEntryAuthFailed,
+    ConfigEntryNotReady,
 )
-
-PLATFORMS = ["sensor"]
+import logging
+from .const import DOMAIN, CLIENT, PLATFORMS, AUTO_RECONNECT
+from asterisk.ami import AMIClient, SimpleAction, AutoReconnect, Event
 
 _LOGGER = logging.getLogger(__name__)
 
-def handle_shutdown(event, manager, hass, entry):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Setup up a config entry."""
 
-    host = entry.data[CONF_HOST]
-    port = entry.data[CONF_PORT]
-
-    raise ConfigEntryNotReady(f"Asterisk server {host}:{port} shutting down.")
-
-def handle_asterisk_event(event, manager, hass, entry):
-
-    if (event.get_header("Event") == "EndpointList"):
+    def create_PJSIP_device(event: Event, **kwargs):
+        _LOGGER.debug("Creating PJSIP device: %s", event)
         device = {
-            "extension": event.get_header("ObjectName"),
-            "status": event.get_header("DeviceState"),
-            "tech": "PJSIP"
+            "extension": event["ObjectName"],
+            "tech": "PJSIP",
+            "status": event["DeviceState"],
         }
-    else:
-        device = {
-            "extension": event.get_header("ObjectName"),
-            "status": event.get_header("Status"),
-            "tech": event.get_header("Channeltype")
-        }
-
-    hass.data[DOMAIN][entry.entry_id]["devices"].append(device)
+        hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
     
-def handle_asterisk_endpointlistcomplete_event(event, manager, hass, entry):
-    hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(
-            entry, "sensor"
+    # def create_SIP_device(event: Event, **kwargs):
+    #     _LOGGER.debug("Creating SIP device: %s", event)
+    #     device = {
+    #         "extension": event["ObjectName"],
+    #         "tech": "SIP",
+    #         "status": event["Status"],
+    #     }
+    #     hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
+    
+    def devices_complete(event: Event, **kwargs):
+        _LOGGER.debug("Done getting devices. Loading platforms.")
+        for component in PLATFORMS:
+            hass.async_create_task(
+                hass.config_entries.async_forward_entry_setup(entry, component)
+            )
+    
+    async def send_action_service(call) -> None:
+        "Send action service."
+
+        action = SimpleAction(
+            call.data.get("action"),
+            **call.data.get("parameters")
         )
+        _LOGGER.debug("Sending action: %s", action)
+
+        try:
+            f = hass.data[DOMAIN][entry.entry_id][CLIENT].send_action(action)
+            _LOGGER.debug("Action response: %s", f.response)
+        except BrokenPipeError:
+            _LOGGER.warning("Failed to send action: AMI Disconnected")
+
+    client = AMIClient(
+        address=entry.data[CONF_HOST],
+        port=entry.data[CONF_PORT],
+        timeout=10,
     )
-
-    hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(
-            entry, "binary_sensor"
-        )
-    )
-
-    _LOGGER.info(f"EndpointListComplete")
-
-async def async_setup_entry(hass, entry):
-    """Your controller/hub specific code."""
-
-    async def hangup_service(call) -> None:
-        "Handle the service call."
-
-        response = hass.data[DOMAIN][entry.entry_id]["manager"].hangup(
-            call.data.get("channel")
-        )
-        
-        _LOGGER.info("Hangup response: ", response)
-
-    async def originate_service(call) -> None:
-        "Handle the service call."
-
-        response = hass.data[DOMAIN][entry.entry_id]["manager"].originate(
-            call.data.get("channel"),
-            call.data.get("exten"),
-            call.data.get("context"),
-            call.data.get("priority"),
-            call.data.get("timeout") * 1000,
-            call.data.get("application"),
-            call.data.get("data"),
-            call.data.get("caller_id"),
-            True, # run_async
-            call.data.get("earlymedia"),
-            call.data.get("account"),
-            call.data.get("variables")
-        )
-
-        _LOGGER.info("Originate response: ", response)
-
-    hass.services.async_register(DOMAIN, "hangup", hangup_service)
-    hass.services.async_register(DOMAIN, "originate", originate_service)
-
-    manager = asterisk.manager.Manager()
-
-    host = entry.data[CONF_HOST]
-    port = entry.data[CONF_PORT]
-    username = entry.data[CONF_USERNAME]
-    password = entry.data[CONF_PASSWORD]
-
+    auto_reconnect = AutoReconnect(client, delay=3)
     try:
-        manager.connect(host, port)
-        manager.login(username, password)
-        hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
-            "devices": [],
-            "manager": manager
-        }
-        _LOGGER.info("Successfully connected to Asterisk server")
+        future = client.login(
+            username=entry.data[CONF_USERNAME],
+            secret=entry.data[CONF_PASSWORD]
+        )
+        _LOGGER.debug("Login response: %s", future.response)
+        if future.response.is_error():
+            raise ConfigEntryAuthFailed(future.response.keys['Message'])
+    except ConfigEntryAuthFailed:
+        raise
+    except Exception as e:
+        raise ConfigEntryNotReady(e)
+    
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
+        CLIENT: client,
+        AUTO_RECONNECT: auto_reconnect,
+        CONF_DEVICES: [],
+    }
+    hass.services.async_register(DOMAIN, "send_action", send_action_service)
 
-        manager.register_event("Shutdown", lambda event, manager=manager, hass=hass, entry=entry: handle_shutdown(event, manager, hass, entry))
-        manager.register_event("PeerEntry", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
-        manager.register_event("EndpointList", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_event(event, manager, hass, entry))
-        manager.register_event("EndpointListComplete", lambda event, manager=manager, hass=hass, entry=entry: handle_asterisk_endpointlistcomplete_event(event, manager, hass, entry))
-        manager.sippeers()                                    # Get all SIP peers
-        manager.send_action({"Action": "PJSIPShowEndpoints"}) # Get all PJSIP endpoints
+    # TODO: Add support for SIP
+    # client.add_event_listener(create_SIP_device, white_list=["PeerEntry"])
+    # client.add_event_listener(devices_complete, white_list=["PeerlistComplete"])
+    # client.send_action(SimpleAction("SIPpeers"))
 
+    # Create self._sip_loaded and self._pjsip_loaded
+    # If action fails because module is not loaded, set to True
 
-        return True
-    except asterisk.manager.ManagerException as exception:
-        raise ConfigEntryNotReady(f"Connection error while connecting to {host}:{port}: {exception.args[1]}")
+    client.add_event_listener(create_PJSIP_device, white_list=["EndpointList"])
+    client.add_event_listener(devices_complete, white_list=["EndpointListComplete"])
+    client.send_action(SimpleAction("PJSIPShowEndpoints"))
 
-async def async_unload_entry(hass, entry) -> bool:
-    """Handle removal of an entry."""
+    return True
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload a config entry."""
     data = hass.data[DOMAIN][entry.entry_id]
-    manager = hass.data[DOMAIN][entry.entry_id]["manager"]
-    manager.close()
+    client = data[CLIENT]
+
+    client.logoff()
+    client.disconnect()
 
     unloaded = all(
         await asyncio.gather(
             *[
-                hass.config_entries.async_forward_entry_unload(entry, "sensor"),
-                hass.config_entries.async_forward_entry_unload(entry, "binary_sensor")
+                hass.config_entries.async_forward_entry_unload(entry, component)
+                for component in PLATFORMS
             ]
         )
-     )
+    )
 
     if unloaded:
-       hass.data[DOMAIN].pop(entry.entry_id)
+        hass.data[DOMAIN].pop(entry.entry_id)
 
     return unloaded
 
-async def async_reload_entry(hass, entry) -> None:
-    """Reload config entry."""
+async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Reload a config entry."""
     await async_unload_entry(hass, entry)
-    await async_setup_entry(hass, entry)
+    return await async_setup_entry(hass, entry)
