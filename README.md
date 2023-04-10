@@ -5,31 +5,23 @@ This integration finds and adds all extensions to your Home Assistant and includ
 
 ## Roadmap
 Things that are coming soon:
-* GUI config
-* More useful text
-* Better styling
 * Device triggers, conditions and actions
-* More entities with information
-* Support popup
-
-Less priority:
-* Channel entities
-* PA/broadcast
-* conference
-* forward calls
+* PA/broadcast?
+* conference?
+* forward calls?
 
 I am open for suggestions!
 
 ## Asterisk add-on
 
-The upcoming Asterisk add-on will be fully supported by this integration.
+The Asterisk add-on fully supports this integration.
 
 ## Requirements
 For this to work you will need the following:
-* A sip/pbx server. (I use freepbx on a raspberry)
-* Extension for every device.
+* A sip/pbx server. (I recommend the Asterisk add-on to get started)
+* Extension for every device. (Add-on auto-generates them)
 * HACS on your Home Assistant.
-* Create an AMI manager. For FreePBX look at https://github.com/TECH7Fox/Asterisk-integration/wiki/Setup-AMI-in-FreePBX.
+* Create an AMI manager. (Add-on comes with preconfigured with it) For FreePBX look at https://github.com/TECH7Fox/Asterisk-integration/wiki/Setup-AMI-in-FreePBX.
 
 
 Go to https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX to see how to setup FreePBX for this card.
@@ -43,48 +35,14 @@ Download using **HACS**
  5. You should now see Asterisk integration. Click `INSTALL`
  6. Restart Home Assistant.
  7. Go to integrations and find Asterisk.
- 8. Fill in the fields and click add.
- 9. Check if the card loads succesfully.
+ 8. Fill in the fields and click add. If succesful, you should now see your PJSIP/SIP devices.
 
-## Usage
-Add the card by setting **type** to `custom:sipjs-card`.
-
-````
-type: custom:sipjs-card
-server: 192.168.0.1
-port: 8089
-autoAnswer: true
-video: true
-ringtone: /local/asterisk/ringtone.mp3
-backtone: /local/asterisk/backtone.mp3
-entities:
-  - entity: sensor.asterisk_extension_103
-    person: person.someone
-    secret: 1234
-  - entity: sensor.asterisk_extension_104
-    person: person.someone_else
-    secret: 1234
-dtmfs:
-  - name: door
-    signal: 1
-````
-
-- video: Enables remote video.
-- server: Your Asterisk server.
-- port: Sets the websocket port.
-- autoAnswer: Answers any incoming call.
-- ringtone: Path to ringtone. Used when being called. `/local` is your `/www` folder.
-- backtone: Path to backtone. Used when calling. `/local` is your `/www` folder.
-- dtmfs: Adds a button to send a ftmf signal in the current call.
 
 ## Troubleshooting
-Most problems is because your pbx server is not configured correct.
+Most problems is because your PBX server is not configured correct.
 To see how to configure FreePBX go to: https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX
 
-* For DTMF signalling to work, in FreePBX, change the dmtf signalling. For intercom purposes, "SIP-INFO DTMF-Relay" is needed.
-* Android companion app 2022.2 required for speaker + audio permissions.
-* Android companion app doesn't allow h264 video codec, make you disallow it on your softphone and/or Asterisk otherwise the call will fail with (remote busy error) If you want video in the companion app, use VP8 for instance
-
+* For DTMF signalling to work, in FreePBX, change the dmtf signaling. For intercom purposes, "SIP-INFO DTMF-Relay" is needed.
 
 If you are still having problems you can make an issue, ask on the discord server or send me a email.
 
