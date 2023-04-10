@@ -5,10 +5,7 @@ This integration finds and adds all extensions to your Home Assistant and includ
 
 ## Roadmap
 Things that are coming soon:
-* Device triggers, conditions and actions
-* PA/broadcast?
-* conference?
-* forward calls?
+* Device triggers, conditions (actions?)
 
 I am open for suggestions!
 
