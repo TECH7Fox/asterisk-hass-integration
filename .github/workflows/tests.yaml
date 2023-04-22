@@ -8,6 +8,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9.16", "3.10.11", "3.11.3"]
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@v1
