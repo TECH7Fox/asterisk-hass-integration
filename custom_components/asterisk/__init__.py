@@ -1,16 +1,22 @@
 import asyncio
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PORT, CONF_USERNAME, CONF_PASSWORD, CONF_DEVICES
-from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import (
-    ConfigEntryAuthFailed,
-    ConfigEntryNotReady,
-)
 import logging
-from .const import DOMAIN, CLIENT, PLATFORMS, AUTO_RECONNECT
-from asterisk.ami import AMIClient, SimpleAction, AutoReconnect, Event
+
+from asterisk.ami import AMIClient, AutoReconnect, Event, SimpleAction
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    CONF_DEVICES,
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_PORT,
+    CONF_USERNAME,
+)
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
+
+from .const import AUTO_RECONNECT, CLIENT, DOMAIN, PLATFORMS
 
 _LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Setup up a config entry."""
@@ -23,7 +29,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             "status": event["DeviceState"],
         }
         hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
-    
+
     # def create_SIP_device(event: Event, **kwargs):
     #     _LOGGER.debug("Creating SIP device: %s", event)
     #     device = {
@@ -32,21 +38,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     #         "status": event["Status"],
     #     }
     #     hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
-    
+
     def devices_complete(event: Event, **kwargs):
         _LOGGER.debug("Done getting devices. Loading platforms.")
         for component in PLATFORMS:
             hass.async_create_task(
                 hass.config_entries.async_forward_entry_setup(entry, component)
             )
-    
+
     async def send_action_service(call) -> None:
         "Send action service."
 
-        action = SimpleAction(
-            call.data.get("action"),
-            **call.data.get("parameters")
-        )
+        action = SimpleAction(call.data.get("action"), **call.data.get("parameters"))
         _LOGGER.debug("Sending action: %s", action)
 
         try:
@@ -64,16 +67,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         future = client.login(
             username=entry.data[CONF_USERNAME],
-            secret=entry.data[CONF_PASSWORD]
+            secret=entry.data[CONF_PASSWORD],
         )
         _LOGGER.debug("Login response: %s", future.response)
         if future.response.is_error():
-            raise ConfigEntryAuthFailed(future.response.keys['Message'])
+            raise ConfigEntryAuthFailed(future.response.keys["Message"])
     except ConfigEntryAuthFailed:
         raise
     except Exception as e:
         raise ConfigEntryNotReady(e)
-    
+
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         CLIENT: client,
         AUTO_RECONNECT: auto_reconnect,
@@ -94,6 +97,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     client.send_action(SimpleAction("PJSIPShowEndpoints"))
 
     return True
+
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
@@ -116,6 +120,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unloaded
+
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Reload a config entry."""

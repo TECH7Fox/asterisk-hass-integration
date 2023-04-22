@@ -1,11 +1,12 @@
-from .const import DOMAIN, STATES, STATE_ICONS
-from .base import AsteriskDeviceEntity
-from homeassistant.const import CONF_DEVICES
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
-from asterisk.ami import Event
-from homeassistant.util.dt import now
 import logging
 
+from asterisk.ami import Event
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.const import CONF_DEVICES
+from homeassistant.util.dt import now
+
+from .base import AsteriskDeviceEntity
+from .const import DOMAIN, STATE_ICONS, STATES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entities.append(ConnectedLineSensor(hass, entry, device))
         entities.append(DTMFSentSensor(hass, entry, device))
         entities.append(DTMFReceivedSensor(hass, entry, device))
-    
+
     async_add_entities(entities, False)
 
 
@@ -37,7 +38,7 @@ class DeviceStateSensor(AsteriskDeviceEntity, SensorEntity):
         self._ami_client.add_event_listener(
             self.handle_event,
             white_list=["DeviceStateChange"],
-            Device=f"{device['tech']}/{device['extension']}"
+            Device=f"{device['tech']}/{device['extension']}",
         )
 
     def handle_event(self, event: Event, **kwargs):
@@ -70,22 +71,22 @@ class ConnectedLineSensor(AsteriskDeviceEntity, SensorEntity):
         self._ami_client.add_event_listener(
             self.handle_new_connected_line,
             white_list=["NewConnectedLine"],
-            CallerIDNum=device['extension'],
+            CallerIDNum=device["extension"],
         )
         self._ami_client.add_event_listener(
             self.handle_new_connected_line,
             white_list=["NewConnectedLine"],
-            ConnectedLineNum=device['extension'],
+            ConnectedLineNum=device["extension"],
         )
         self._ami_client.add_event_listener(
             self.handle_hangup,
             white_list=["Hangup"],
-            CallerIDNum=device['extension'],
+            CallerIDNum=device["extension"],
         )
 
     def handle_new_connected_line(self, event: Event, **kwargs):
         """Handle an NewConnectedLine event."""
-        if event["ConnectedLineNum"] != self._device['extension']:
+        if event["ConnectedLineNum"] != self._device["extension"]:
             self._state = event["ConnectedLineNum"]
         else:
             self._state = event["CallerIDNum"]
@@ -125,7 +126,7 @@ class ConnectedLineSensor(AsteriskDeviceEntity, SensorEntity):
     def state(self) -> str:
         """Return registered state."""
         return self._state
-    
+
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
@@ -134,7 +135,11 @@ class ConnectedLineSensor(AsteriskDeviceEntity, SensorEntity):
     @property
     def icon(self) -> str:
         """Return the icon of the sensor."""
-        return "mdi:phone-remove" if self._state == "None" else "mdi:phone-incoming-outgoing"
+        return (
+            "mdi:phone-remove"
+            if self._state == "None"
+            else "mdi:phone-incoming-outgoing"
+        )
 
 
 class DTMFSentSensor(AsteriskDeviceEntity, SensorEntity):
@@ -150,7 +155,7 @@ class DTMFSentSensor(AsteriskDeviceEntity, SensorEntity):
         self._ami_client.add_event_listener(
             self.handle_dtmf,
             white_list=["DTMFBegin"],
-            ConnectedLineNum=device['extension'],
+            ConnectedLineNum=device["extension"],
             Direction="Sent",
         )
 
@@ -167,12 +172,12 @@ class DTMFSentSensor(AsteriskDeviceEntity, SensorEntity):
             "Context": event["Context"],
         }
         self.hass.async_add_job(self.async_update_ha_state)
-    
+
     @property
     def state(self) -> str:
         """Return registered state."""
         return self._state
-    
+
     @property
     def device_class(self) -> SensorDeviceClass:
         return SensorDeviceClass.TIMESTAMP
@@ -196,7 +201,7 @@ class DTMFReceivedSensor(AsteriskDeviceEntity, SensorEntity):
         self._ami_client.add_event_listener(
             self.handle_dtmf,
             white_list=["DTMFBegin"],
-            ConnectedLineNum=device['extension'],
+            ConnectedLineNum=device["extension"],
             Direction="Received",
         )
 
@@ -216,7 +221,7 @@ class DTMFReceivedSensor(AsteriskDeviceEntity, SensorEntity):
     def state(self) -> str:
         """Return registered state."""
         return self._state
-    
+
     @property
     def device_class(self) -> SensorDeviceClass:
         return SensorDeviceClass.TIMESTAMP

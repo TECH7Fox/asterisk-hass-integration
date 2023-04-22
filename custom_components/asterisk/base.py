@@ -1,8 +1,9 @@
-from .const import DOMAIN, CLIENT
 from asterisk.ami import AMIClient
 
+from .const import CLIENT, DOMAIN
 
-class AsteriskDeviceEntity():
+
+class AsteriskDeviceEntity:
     """Base entity for Asterisk devices."""
 
     def __init__(self, hass, entry, device):
@@ -13,7 +14,7 @@ class AsteriskDeviceEntity():
         self._ami_client: AMIClient = hass.data[DOMAIN][entry.entry_id][CLIENT]
         self._name: str
         self._unique_id: str
-    
+
     @property
     def device_info(self):
         """Return the device info."""
@@ -24,7 +25,7 @@ class AsteriskDeviceEntity():
             "model": self._device["tech"],
             "via_device": (DOMAIN, f"{self._entry.entry_id}_server"),
         }
-    
+
     @property
     def name(self) -> str:
         """Return the name of the sensor."""

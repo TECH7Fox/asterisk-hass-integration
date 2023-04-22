@@ -24,7 +24,3 @@ repos:
           - flake8-bugbear
           - flake8-comprehensions
           - flake8-simplify
-  - repo: https://github.com/renovatebot/pre-commit-hooks
-    rev: 34.154.2
-    hooks:
-      - id: renovate-config-validator
