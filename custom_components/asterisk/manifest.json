@@ -2,16 +2,16 @@
     "domain": "asterisk",
     "name": "Asterisk",
     "version": "1.0.0",
-    "config_flow": true,
-    "documentation": "https://github.com/TECH7Fox/Asterisk-integration",
-    "issue_tracker": "https://github.com/TECH7Fox/Asterisk-integration/issues",
-    "requirements": ["asterisk-ami==0.1.6"],
-    "ssdp": [],
-    "zeroconf": [],
-    "homekit": {},
-    "dependencies": [],
     "codeowners": [
         "@TECH7Fox"
     ],
-    "iot_class": "local_polling"
+    "config_flow": true,
+    "dependencies": [],
+    "documentation": "https://github.com/TECH7Fox/Asterisk-integration",
+    "homekit": {},
+    "iot_class": "local_polling",
+    "issue_tracker": "https://github.com/TECH7Fox/Asterisk-integration/issues",
+    "requirements": ["asterisk-ami==0.1.6"],
+    "ssdp": [],
+    "zeroconf": []
 }
