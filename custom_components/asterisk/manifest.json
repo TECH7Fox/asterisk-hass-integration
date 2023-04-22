@@ -1,7 +1,6 @@
 {
     "domain": "asterisk",
     "name": "Asterisk",
-    "version": "1.0.0",
     "codeowners": [
         "@TECH7Fox"
     ],
@@ -13,5 +12,6 @@
     "issue_tracker": "https://github.com/TECH7Fox/Asterisk-integration/issues",
     "requirements": ["asterisk-ami==0.1.6"],
     "ssdp": [],
+    "version": "1.0.0",
     "zeroconf": []
 }
