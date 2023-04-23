@@ -85,13 +85,8 @@ class ConnectedLineSensor(AsteriskDeviceEntity, SensorEntity):
         )
         self._ami_client.add_event_listener(
             self.handle_new_channel,
-            white_list=["NewChannel"],
+            white_list=["Newchannel"],
             CallerIDNum=device["extension"],
-        )
-        self._ami_client.add_event_listener(
-            self.handle_new_channel,
-            white_list=["NewChannel"],
-            ConnectedLineNum=device["extension"],
         )
 
     def handle_new_connected_line(self, event: Event, **kwargs):
@@ -134,10 +129,7 @@ class ConnectedLineSensor(AsteriskDeviceEntity, SensorEntity):
 
     def handle_new_channel(self, event: Event, **kwargs):
         """Handle an NewChannel event."""
-        if event["ConnectedLineNum"] != self._device["extension"]:
-            self._state = event["ConnectedLineNum"]
-        else:
-            self._state = event["CallerIDNum"]
+        self._state = "None"
         self._extra_attributes = {
             "Channel": event["Channel"],
             "ChannelState": event["ChannelState"],
