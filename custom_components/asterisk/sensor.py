@@ -83,6 +83,16 @@ class ConnectedLineSensor(AsteriskDeviceEntity, SensorEntity):
             white_list=["Hangup"],
             CallerIDNum=device["extension"],
         )
+        self._ami_client.add_event_listener(
+            self.handle_new_channel,
+            white_list=["NewChannel"],
+            CallerIDNum=device["extension"],
+        )
+        self._ami_client.add_event_listener(
+            self.handle_new_channel,
+            white_list=["NewChannel"],
+            ConnectedLineNum=device["extension"],
+        )
 
     def handle_new_connected_line(self, event: Event, **kwargs):
         """Handle an NewConnectedLine event."""
@@ -121,6 +131,25 @@ class ConnectedLineSensor(AsteriskDeviceEntity, SensorEntity):
                 "Cause-txt": event["Cause-txt"],
             }
             self.hass.async_add_job(self.async_update_ha_state)
+
+    def handle_new_channel(self, event: Event, **kwargs):
+        """Handle an NewChannel event."""
+        if event["ConnectedLineNum"] != self._device["extension"]:
+            self._state = event["ConnectedLineNum"]
+        else:
+            self._state = event["CallerIDNum"]
+        self._extra_attributes = {
+            "Channel": event["Channel"],
+            "ChannelState": event["ChannelState"],
+            "ChannelStateDesc": event["ChannelStateDesc"],
+            "CallerIDNum": event["CallerIDNum"],
+            "CallerIDName": event["CallerIDName"],
+            "ConnectedLineNum": event["ConnectedLineNum"],
+            "ConnectedLineName": event["ConnectedLineName"],
+            "Exten": event["Exten"],
+            "Context": event["Context"],
+        }
+        self.hass.async_add_job(self.async_update_ha_state)
 
     @property
     def state(self) -> str:
