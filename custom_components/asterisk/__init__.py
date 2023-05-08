@@ -13,7 +13,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 
-from .const import AUTO_RECONNECT, CLIENT, DOMAIN, PLATFORMS
+from .const import AUTO_RECONNECT, CLIENT, DOMAIN, PLATFORMS, SIP_LOADED, PJSIP_LOADED
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,21 +30,32 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         }
         hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
 
-    # def create_SIP_device(event: Event, **kwargs):
-    #     _LOGGER.debug("Creating SIP device: %s", event)
-    #     device = {
-    #         "extension": event["ObjectName"],
-    #         "tech": "SIP",
-    #         "status": event["Status"],
-    #     }
-    #     hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
+    def create_SIP_device(event: Event, **kwargs):
+        _LOGGER.debug("Creating SIP device: %s", event)
+        device = {
+            "extension": event["ObjectName"],
+            "tech": "SIP",
+            "status": event["Status"],
+        }
+        hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
 
     def devices_complete(event: Event, **kwargs):
-        _LOGGER.debug("Done getting devices. Loading platforms.")
-        for component in PLATFORMS:
-            hass.async_create_task(
-                hass.config_entries.async_forward_entry_setup(entry, component)
-            )
+        _LOGGER.error("Devices complete: %s", event)
+        sip_loaded = hass.data[DOMAIN][entry.entry_id][SIP_LOADED]
+        pjsip_loaded = hass.data[DOMAIN][entry.entry_id][PJSIP_LOADED]
+        if event.name == "PeerlistComplete":
+            _LOGGER.debug("SIP loaded.")
+            sip_loaded = True
+        elif event.name == "EndpointListComplete":
+            _LOGGER.debug("PJSIP loaded.")
+            pjsip_loaded = True
+        
+        if sip_loaded and pjsip_loaded:
+            _LOGGER.debug("Both SIP and PJSIP loaded. Loading platforms.")
+            for component in PLATFORMS:
+                hass.async_create_task(
+                    hass.config_entries.async_forward_entry_setup(entry, component)
+                )
 
     async def send_action_service(call) -> None:
         "Send action service."
@@ -81,20 +92,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CLIENT: client,
         AUTO_RECONNECT: auto_reconnect,
         CONF_DEVICES: [],
+        SIP_LOADED: False,
+        PJSIP_LOADED: False,
     }
     hass.services.async_register(DOMAIN, "send_action", send_action_service)
 
-    # TODO: Add support for SIP
-    # client.add_event_listener(create_SIP_device, white_list=["PeerEntry"])
-    # client.add_event_listener(devices_complete, white_list=["PeerlistComplete"])
-    # client.send_action(SimpleAction("SIPpeers"))
-
-    # Create self._sip_loaded and self._pjsip_loaded
-    # If action fails because module is not loaded, set to True
+    client.add_event_listener(create_SIP_device, white_list=["PeerEntry"])
+    client.add_event_listener(devices_complete, white_list=["PeerlistComplete"])
+    f = client.send_action(SimpleAction("SIPpeers"))
+    if f.response.is_error():
+        _LOGGER.debug("SIP module not loaded. Skipping SIP devices.")
+        hass.data[DOMAIN][entry.entry_id][SIP_LOADED] = True
 
     client.add_event_listener(create_PJSIP_device, white_list=["EndpointList"])
     client.add_event_listener(devices_complete, white_list=["EndpointListComplete"])
-    client.send_action(SimpleAction("PJSIPShowEndpoints"))
+    f = client.send_action(SimpleAction("PJSIPShowEndpoints"))
+    if f.response.is_error():
+       _LOGGER.debug("PJSIP module not loaded. Skipping PJSIP devices.")
+       hass.data[DOMAIN][entry.entry_id][PJSIP_LOADED] = True
 
     return True
 
