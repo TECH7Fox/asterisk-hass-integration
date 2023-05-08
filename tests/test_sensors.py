@@ -1,14 +1,14 @@
 from homeassistant.const import CONF_DEVICES
 from homeassistant.core import HomeAssistant
-import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.asterisk.const import CLIENT, DOMAIN
 
 from .mock_ami_client import MockAMIClient
 
+# TODO: snapshot tests???
 
-@pytest.mark.asyncio
+
 async def test_device_state_sensor(hass: HomeAssistant, config_entry: MockConfigEntry):
     """Test DeviceStateSensor."""
     client = MockAMIClient()
@@ -38,7 +38,6 @@ async def test_device_state_sensor(hass: HomeAssistant, config_entry: MockConfig
     assert sensor.state == "Not in use"
 
 
-@pytest.mark.asyncio
 async def test_connected_line_sensor(
     hass: HomeAssistant, config_entry: MockConfigEntry
 ):
@@ -59,9 +58,16 @@ async def test_connected_line_sensor(
 
     client.trigger_event(
         {
-            "Event": "DeviceStateChange",
+            "Event": "NewConnectedLine",
             "ConnectedLineNum": "100",
             "ConnectedLineName": "Test",
+            "CallerIDNum": "101",
+            "CallerIDName": "Test",
+            "Exten": "102",
+            "Context": "from-internal",
+            "Channel": "PJSIP/100-00000000",
+            "ChannelState": "6",
+            "ChannelStateDesc": "Up",
             "State": "NOT_INUSE",
         }
     )
@@ -69,10 +75,9 @@ async def test_connected_line_sensor(
     await hass.async_block_till_done()
     sensor = hass.states.get("sensor.100_connected_line")
     assert sensor is not None
-    assert sensor.state == "Test"
+    assert sensor.state == "101"
 
 
-@pytest.mark.asyncio
 async def test_dtmf_sent_sensor(hass: HomeAssistant, config_entry: MockConfigEntry):
     """Test DTMFSentSensor."""
     client = MockAMIClient()
@@ -113,7 +118,6 @@ async def test_dtmf_sent_sensor(hass: HomeAssistant, config_entry: MockConfigEnt
     assert sensor.state != "unknown"
 
 
-@pytest.mark.asyncio
 async def test_dtmf_received_sensor(hass: HomeAssistant, config_entry: MockConfigEntry):
     """Test DTMFReceivedSensor."""
     client = MockAMIClient()

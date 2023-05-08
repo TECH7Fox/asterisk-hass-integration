@@ -1,8 +1,6 @@
 from homeassistant.core import HomeAssistant
-import pytest
 
 
-@pytest.mark.asyncio
 async def test_send_action(hass: HomeAssistant):
     """Test the Send Action service."""
     # TODO:

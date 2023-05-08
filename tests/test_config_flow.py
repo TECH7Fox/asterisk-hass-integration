@@ -1,11 +1,9 @@
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
-import pytest
 
 from custom_components.asterisk.const import DOMAIN
 
 
-@pytest.mark.asyncio
 async def test_config_flow(hass: HomeAssistant):
     """Test config flow."""
 
