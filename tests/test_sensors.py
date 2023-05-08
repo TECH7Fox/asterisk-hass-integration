@@ -6,8 +6,6 @@ from custom_components.asterisk.const import CLIENT, DOMAIN
 
 from .mock_ami_client import MockAMIClient
 
-# TODO: snapshot tests???
-
 
 async def test_device_state_sensor(hass: HomeAssistant, config_entry: MockConfigEntry):
     """Test DeviceStateSensor."""
