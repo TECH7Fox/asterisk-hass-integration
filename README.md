@@ -1,27 +1,23 @@
 # Asterisk-integration
 **Asterisk integration for Home Assistant**
 
-This integration finds and adds all extensions to your Home Assistant and includes a card to call them from.
+This integration finds and adds all SIP and PJSIP devices to your Home Assistant.
 
 ## Roadmap
 Things that are coming soon:
-* Device triggers, conditions (actions?)
+* Device triggers and conditions
 
 I am open for suggestions!
 
 ## Asterisk add-on
 
-The Asterisk add-on fully supports this integration.
+The [Asterisk add-on](https://github.com/TECH7Fox/asterisk-hass-addons) fully supports this integration.
 
 ## Requirements
 For this to work you will need the following:
 * A sip/pbx server. (I recommend the Asterisk add-on to get started)
-* Extension for every device. (Add-on auto-generates them)
 * HACS on your Home Assistant.
-* Create an AMI manager. (Add-on comes with preconfigured with it) For FreePBX look at https://github.com/TECH7Fox/Asterisk-integration/wiki/Setup-AMI-in-FreePBX.
-
-
-Go to https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX to see how to setup FreePBX for this card.
+* Create an AMI manager. Make sure your IP is allowed. (Add-on comes preconfigured for this)
 
 ## Installation
 Download using **HACS**
@@ -37,11 +33,10 @@ Download using **HACS**
 
 ## Troubleshooting
 Most problems is because your PBX server is not configured correct.
-To see how to configure FreePBX go to: https://github.com/TECH7Fox/HA-SIP/wiki/Setup-FreePBX
 
 * For DTMF signalling to work, in FreePBX, change the dmtf signaling. For intercom purposes, "SIP-INFO DTMF-Relay" is needed.
 
-If you are still having problems you can make an issue, ask on the discord server or send me a email.
+If you are still having problems you can make an issue, ask on the [discord server](https://discordapp.com/invite/qxnDtHbwuD) or send me a email.
 
 ## Contact
 **jordy.kuhne@gmail.com**
