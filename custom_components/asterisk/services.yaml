@@ -1,94 +1,18 @@
-hangup:
-  name: Hangup extension
-  description: Hangup the current call of a extension.
+send_action:
+  name: Send Action
+  description: Send an action to the Asterisk Manager Interface.
   fields:
-    channel:
-      name: Channel
-      description: The excact channel name to be hangup
+    action:
+      name: Action
+      description: Action to send.
       required: true
-      example: "PJSIP/100"
+      example: "Ping"
       selector:
         text:
-originate:
-  name: Originate call
-  description: Create a call.
-  fields:
-    channel:
-      name: Channel
-      description: Channel name to call.
+    parameters:
+      name: Parameters
+      description: Parameters to send with the action.
       required: true
-      example: PJSIP/100
-      selector:
-        text:
-    exten:
-      name: Extension
-      description: Extension to use (requires Context and Priority)
-      required: false
-      example: "100"
-      selector:
-        text:
-    context:
-      name: Context
-      description: Context to use (requires Exten and Priority)
-      required: false
-      example: "default"
-      default: "default"
-      selector:
-        text:
-    priority:
-      name: Priority
-      description: Priority to use (requires Exten and Context)
-      required: false
-      example: "1"
-      default: "1"
-      selector:
-        text:
-    timeout:
-      name: Timeout
-      description: How long to wait for call to be answered (in seconds)
-      required: false
-      example: 60
-      selector:
-        number:
-          min: 0
-          max: 999
-          unit_of_measurement: seconds
-          mode: slider
-    application:
-      name: Application
-      description: Application to execute
-      required: false
-      selector:
-        text:
-    data:
-      name: Data
-      description: Data to use (requires Application)
-      required: false
-      selector:
-        object:
-    caller_id:
-      name: CallerID
-      description: CallerID to be set on the outgoing channel
-      required: false
-      selector:
-        text:
-    earlymedia:
-      name: Early Media
-      description: Set to true to force call bridge on early media
-      required: false
-      default: true
-      selector:
-        boolean:
-    account:
-      name: Account
-      description: Account code
-      required: false
-      selector:
-        text:
-    variables:
-      name: Variables
-      description: Channel variables
-      required: false
-      example: "key=val|key=val"
+      example: "key: val"
       selector:
         object:
