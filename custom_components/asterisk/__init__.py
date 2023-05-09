@@ -40,7 +40,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
 
     def devices_complete(event: Event, **kwargs):
-        _LOGGER.debug("Devices complete: %s", event)
         sip_loaded = hass.data[DOMAIN][entry.entry_id][SIP_LOADED]
         pjsip_loaded = hass.data[DOMAIN][entry.entry_id][PJSIP_LOADED]
         if event.name == "PeerlistComplete":
