@@ -45,9 +45,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if event.name == "PeerlistComplete":
             _LOGGER.debug("SIP loaded.")
             sip_loaded = True
+            hass.data[DOMAIN][entry.entry_id][SIP_LOADED] = True
         elif event.name == "EndpointListComplete":
             _LOGGER.debug("PJSIP loaded.")
             pjsip_loaded = True
+            hass.data[DOMAIN][entry.entry_id][PJSIP_LOADED] = True
         
         if sip_loaded and pjsip_loaded:
             _LOGGER.debug("Both SIP and PJSIP loaded. Loading platforms.")
