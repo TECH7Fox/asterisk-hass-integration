@@ -44,7 +44,7 @@ class RegisteredSensor(AsteriskDeviceEntity, BinarySensorEntity):
 
     def handle_state_change(self, event: Event, **kwargs):
         """Handle an device state change event."""
-        self._state = event["State"] not in NON_REGISTERED_STATES
+        self._state = event["State"] not in NON_REGISTERED_STATES_CAPS
         self.async_write_ha_state()
 
     @property
