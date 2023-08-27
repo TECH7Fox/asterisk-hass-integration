@@ -27,3 +27,13 @@ STATE_ICONS = {
 }
 SIP_LOADED = "sip_loaded"
 PJSIP_LOADED = "pjsip_loaded"
+NON_REGISTERED_STATES = [
+    "Rejected",
+    "Unavailable",
+    "Unknown",
+]
+NON_REGISTERED_STATES_CAPS = [
+    "REJECTED",
+    "UNAVAILABLE",
+    "UNKNOWN",
+]

@@ -8,7 +8,7 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.const import CONF_DEVICES
 
 from .base import AsteriskDeviceEntity
-from .const import AUTO_RECONNECT, CLIENT, DOMAIN
+from .const import AUTO_RECONNECT, CLIENT, DOMAIN, NON_REGISTERED_STATES, NON_REGISTERED_STATES_CAPS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class RegisteredSensor(AsteriskDeviceEntity, BinarySensorEntity):
         self._unique_id = f"{self._unique_id_prefix}_registered"
         self._name = f"{device['extension']} Registered"
         self._state = (
-            device["status"] != "Unavailable" and device["status"] != "Unknown"
+            device["status"] not in NON_REGISTERED_STATES
         )
         self._ami_client.add_event_listener(
             self.handle_state_change,
@@ -44,8 +44,7 @@ class RegisteredSensor(AsteriskDeviceEntity, BinarySensorEntity):
 
     def handle_state_change(self, event: Event, **kwargs):
         """Handle an device state change event."""
-        state = event["State"]
-        self._state = state != "UNAVAILABLE" and state != "UNKNOWN"
+        self._state = event["State"] not in NON_REGISTERED_STATES_CAPS
         self.async_write_ha_state()
 
     @property
