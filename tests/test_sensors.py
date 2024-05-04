@@ -35,6 +35,9 @@ async def test_device_state_sensor(hass: HomeAssistant, config_entry: MockConfig
     assert sensor is not None
     assert sensor.state == "Not in use"
 
+    assert await config_entry.async_unload(hass)
+    await hass.async_block_till_done()
+
 
 async def test_connected_line_sensor(
     hass: HomeAssistant, config_entry: MockConfigEntry
@@ -74,6 +77,9 @@ async def test_connected_line_sensor(
     sensor = hass.states.get("sensor.100_connected_line")
     assert sensor is not None
     assert sensor.state == "101"
+
+    assert await config_entry.async_unload(hass)
+    await hass.async_block_till_done()
 
 
 async def test_dtmf_sent_sensor(hass: HomeAssistant, config_entry: MockConfigEntry):
@@ -115,6 +121,9 @@ async def test_dtmf_sent_sensor(hass: HomeAssistant, config_entry: MockConfigEnt
     assert sensor is not None
     assert sensor.state != "unknown"
 
+    assert await config_entry.async_unload(hass)
+    await hass.async_block_till_done()
+
 
 async def test_dtmf_received_sensor(hass: HomeAssistant, config_entry: MockConfigEntry):
     """Test DTMFReceivedSensor."""
@@ -154,3 +163,6 @@ async def test_dtmf_received_sensor(hass: HomeAssistant, config_entry: MockConfi
     sensor = hass.states.get("sensor.100_dtmf_received")
     assert sensor is not None
     assert sensor.state != "unknown"
+
+    assert await config_entry.async_unload(hass)
+    await hass.async_block_till_done()
