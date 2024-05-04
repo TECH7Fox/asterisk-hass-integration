@@ -53,10 +53,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         
         if sip_loaded and pjsip_loaded:
             _LOGGER.debug("Both SIP and PJSIP loaded. Loading platforms.")
-            for component in PLATFORMS:
-                hass.async_create_task(
-                    hass.config_entries.async_forward_entry_setup(entry, component)
-                )
+            asyncio.run_coroutine_threadsafe(
+                hass.config_entries.async_forward_entry_setups(entry, PLATFORMS),
+                hass.loop
+            )
 
     async def send_action_service(call) -> None:
         "Send action service."

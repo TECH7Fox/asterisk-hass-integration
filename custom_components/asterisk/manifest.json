@@ -13,6 +13,6 @@
     "loggers": ["custom_components.asterisk"],
     "requirements": ["asterisk-ami==0.1.6"],
     "ssdp": [],
-    "version": "1.0.3",
+    "version": "1.0.4",
     "zeroconf": []
 }
