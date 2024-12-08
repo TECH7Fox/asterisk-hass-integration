@@ -23,7 +23,7 @@ For this to work you will need the following:
 Download using **HACS**
  1. Go to HACS
  2. Click on the 3 points in the upper right corner and click on `Custom repositories`
- 3. Paste https://github.com/TECH7Fox/Asterisk-integration/ into `Add custom repository URL` and by category choose Integration
+ 3. Paste https://github.com/TECH7Fox/asterisk-hass-integration into `Add custom repository URL` and by category choose Integration
  4. Click on add and check if the repository is there.
  5. You should now see Asterisk integration. Click `INSTALL`
  6. Restart Home Assistant.
