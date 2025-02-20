@@ -13,7 +13,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 
-from .const import AUTO_RECONNECT, CLIENT, DOMAIN, PLATFORMS, SIP_LOADED, PJSIP_LOADED
+from .const import AUTO_RECONNECT, CLIENT, DOMAIN, PLATFORMS, SIP_LOADED, PJSIP_LOADED, SCCP_LOADED, IAX_LOADED
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,24 +39,48 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         }
         hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
 
+    def create_SCCP_device(event: Event, **kwargs):
+        _LOGGER.debug("Creating SCCP device: %s", event)
+        device = {
+            "extension": event["Name"],
+            "tech": "SCCP",
+            "status": event["ObjectType"],
+        }
+        hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
+
+    def create_IAX_device(event: Event, **kwargs):
+        _LOGGER.debug("Creating IAX device: %s", event)
+        device = {
+            "extension": event["ObjectName"],
+            "tech": "IAX",
+            "status": event["Status"],
+        }
+        hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
+
     def devices_complete(event: Event, **kwargs):
         sip_loaded = hass.data[DOMAIN][entry.entry_id][SIP_LOADED]
         pjsip_loaded = hass.data[DOMAIN][entry.entry_id][PJSIP_LOADED]
-        if event.name == "PeerlistComplete":
+        sccp_loaded = hass.data[DOMAIN][entry.entry_id][SCCP_LOADED]
+        iax_loaded = hass.data[DOMAIN][entry.entry_id][IAX_LOADED]
+        if sip_loaded == False and event.name == "PeerlistComplete":
             _LOGGER.debug("SIP loaded.")
-            sip_loaded = True
             hass.data[DOMAIN][entry.entry_id][SIP_LOADED] = True
-        elif event.name == "EndpointListComplete":
+        elif pjsip_loaded == False and event.name == "EndpointListComplete":
             _LOGGER.debug("PJSIP loaded.")
-            pjsip_loaded = True
             hass.data[DOMAIN][entry.entry_id][PJSIP_LOADED] = True
-        
-        if sip_loaded and pjsip_loaded:
-            _LOGGER.debug("Both SIP and PJSIP loaded. Loading platforms.")
-            asyncio.run_coroutine_threadsafe(
-                hass.config_entries.async_forward_entry_setups(entry, PLATFORMS),
-                hass.loop
-            )
+        elif sccp_loaded == False and event.name == "SCCPListLinesComplete":
+            _LOGGER.debug("SCCP loaded.")
+            hass.data[DOMAIN][entry.entry_id][SCCP_LOADED] = True
+        elif iax_loaded == False and event.name == "PeerlistComplete":
+            _LOGGER.debug("IAX loaded.")
+            hass.data[DOMAIN][entry.entry_id][IAX_LOADED] = True
+
+        if sip_loaded and pjsip_loaded and sccp_loaded and iax_loaded:
+            _LOGGER.debug("SIP, PJSIP, SCCP and IAX loaded. Loading platforms.")
+            for component in PLATFORMS:
+                hass.async_create_task(
+                    hass.config_entries.async_forward_entry_setup(entry, component)
+                )
 
     async def send_action_service(call) -> None:
         "Send action service."
@@ -95,10 +119,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_DEVICES: [],
         SIP_LOADED: False,
         PJSIP_LOADED: False,
+        SCCP_LOADED: False,
+        IAX_LOADED: False,
     }
     hass.services.async_register(DOMAIN, "send_action", send_action_service)
 
-    client.add_event_listener(create_SIP_device, white_list=["PeerEntry"])
+    client.add_event_listener(create_SIP_device, white_list=["PeerEntry"], Channeltype='SIP')
     client.add_event_listener(devices_complete, white_list=["PeerlistComplete"])
     f = client.send_action(SimpleAction("SIPpeers"))
     if f.response.is_error():
@@ -111,6 +137,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if f.response.is_error():
        _LOGGER.debug("PJSIP module not loaded. Skipping PJSIP devices.")
        hass.data[DOMAIN][entry.entry_id][PJSIP_LOADED] = True
+
+    client.add_event_listener(create_SCCP_device, white_list=["LineEntry"])
+    client.add_event_listener(devices_complete, white_list=["SCCPListLinesComplete"])
+    f = client.send_action(SimpleAction("SCCPListLines"))
+    if f.response.is_error():
+       _LOGGER.debug("SCCP module not loaded. Skipping SCCP devices.")
+       hass.data[DOMAIN][entry.entry_id][SCCP_LOADED] = True
+
+    client.add_event_listener(create_IAX_device, white_list=["PeerEntry"], Channeltype='IAX')
+    client.add_event_listener(devices_complete, white_list=["PeerlistComplete"])
+    f = client.send_action(SimpleAction("IAXpeerList"))
+    if f.response.is_error():
+        _LOGGER.debug("IAX module not loaded. Skipping IAX devices.")
+        hass.data[DOMAIN][entry.entry_id][IAX_LOADED] = True
 
     return True
 

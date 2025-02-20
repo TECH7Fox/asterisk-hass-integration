@@ -27,3 +27,5 @@ STATE_ICONS = {
 }
 SIP_LOADED = "sip_loaded"
 PJSIP_LOADED = "pjsip_loaded"
+SCCP_LOADED = "sccp_loaded"
+IAX_LOADED = "iax_loaded"
