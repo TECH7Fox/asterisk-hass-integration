@@ -46,7 +46,7 @@ class RegisteredSensor(AsteriskDeviceEntity, BinarySensorEntity):
         """Handle an device state change event."""
         state = event["State"]
         self._state = state != "UNAVAILABLE" and state != "UNKNOWN"
-        self.async_write_ha_state()
+        self.schedule_update_ha_state()
 
     @property
     def is_on(self) -> bool:
@@ -81,12 +81,12 @@ class AMIConnected(BinarySensorEntity):
         _LOGGER.debug(f"Disconnected from AMI: {response}")
         client.disconnect()
         self._state = False
-        self.async_write_ha_state()
+        self.schedule_update_ha_state()
 
     def on_reconnect(self, client, response):
         _LOGGER.debug(f"Reconnected to AMI: {response}")
         self._state = True
-        self.async_write_ha_state()
+        self.schedule_update_ha_state()
 
     @property
     def device_info(self):

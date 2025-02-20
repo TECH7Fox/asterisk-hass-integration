@@ -45,7 +45,7 @@ class DeviceStateSensor(AsteriskDeviceEntity, SensorEntity):
         """Handle an endpoint update event."""
         state = event["State"]
         self._state = STATES.get(state, STATES["UNKNOWN"])
-        self.async_write_ha_state()
+        self.schedule_update_ha_state()
 
     @property
     def state(self) -> str:
@@ -106,7 +106,7 @@ class ConnectedLineSensor(AsteriskDeviceEntity, SensorEntity):
             "Exten": event["Exten"],
             "Context": event["Context"],
         }
-        self.async_write_ha_state()
+        self.schedule_update_ha_state()
 
     def handle_hangup(self, event: Event, **kwargs):
         """Handle an Hangup event."""
@@ -125,7 +125,7 @@ class ConnectedLineSensor(AsteriskDeviceEntity, SensorEntity):
                 "Cause": event["Cause"],
                 "Cause-txt": event["Cause-txt"],
             }
-            self.async_write_ha_state()
+            self.schedule_update_ha_state()
 
     def handle_new_channel(self, event: Event, **kwargs):
         """Handle an NewChannel event."""
@@ -141,7 +141,7 @@ class ConnectedLineSensor(AsteriskDeviceEntity, SensorEntity):
             "Exten": event["Exten"],
             "Context": event["Context"],
         }
-        self.async_write_ha_state()
+        self.schedule_update_ha_state()
 
     @property
     def state(self) -> str:
@@ -192,7 +192,7 @@ class DTMFSentSensor(AsteriskDeviceEntity, SensorEntity):
             "ConnectedLineName": event["ConnectedLineName"],
             "Context": event["Context"],
         }
-        self.async_write_ha_state()
+        self.schedule_update_ha_state()
 
     @property
     def state(self) -> str:
@@ -236,7 +236,7 @@ class DTMFReceivedSensor(AsteriskDeviceEntity, SensorEntity):
             "ConnectedLineName": event["ConnectedLineName"],
             "Context": event["Context"],
         }
-        self.async_write_ha_state()
+        self.schedule_update_ha_state()
 
     @property
     def state(self) -> str:
