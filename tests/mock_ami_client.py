@@ -14,4 +14,20 @@ class MockAMIClient:
             handler(event)
 
     def send_action(self, action):
-        pass
+        # Mock implementation for MailboxStatus action
+        if action.name == "MailboxStatus":
+            return MockFuture({"NewMessages": "2", "OldMessages": "3", "Waiting": "2"})
+        return MockFuture({})
+
+
+class MockFuture:
+    def __init__(self, response_keys):
+        self.response = MockResponse(response_keys)
+
+
+class MockResponse:
+    def __init__(self, keys):
+        self.keys = keys
+
+    def is_error(self):
+        return False
