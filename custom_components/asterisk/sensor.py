@@ -1,6 +1,6 @@
 import logging
 
-from asterisk.ami import Event
+from asterisk.ami import Event, SimpleAction
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import CONF_DEVICES
 from homeassistant.util.dt import now
@@ -22,6 +22,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entities.append(ConnectedLineSensor(hass, entry, device))
         entities.append(DTMFSentSensor(hass, entry, device))
         entities.append(DTMFReceivedSensor(hass, entry, device))
+        entities.append(VoicemailStatusSensor(hass, entry, device))
 
     async_add_entities(entities, False)
 
@@ -251,3 +252,89 @@ class DTMFReceivedSensor(AsteriskDeviceEntity, SensorEntity):
     def extra_state_attributes(self):
         """Return the state attributes."""
         return self._extra_attributes
+
+
+class VoicemailStatusSensor(AsteriskDeviceEntity, SensorEntity):
+    """Sensor entity for voicemail status."""
+
+    def __init__(self, hass, entry, device):
+        """Initialize the sensor."""
+        super().__init__(hass, entry, device)
+        self._unique_id = f"{self._unique_id_prefix}_voicemail_status"
+        self._name = f"{device['extension']} Voicemail Status"
+        self._state = 0
+        self._extra_attributes = {}
+        self._mailbox = f"{device['extension']}@default"
+
+        # Listen for MWI (Message Waiting Indicator) events
+        self._ami_client.add_event_listener(
+            self.handle_mwi,
+            white_list=["MWI"],
+            Mailbox=self._mailbox,
+        )
+
+        # Get initial voicemail status
+        self._get_initial_status()
+
+    def _get_initial_status(self):
+        """Get initial voicemail status using MailboxStatus action."""
+        try:
+            future = self._ami_client.send_action(
+                SimpleAction("MailboxStatus", Mailbox=self._mailbox)
+            )
+            if future.response and not future.response.is_error():
+                self._update_from_response(future.response.keys)
+        except Exception as e:
+            _LOGGER.warning(
+                f"Failed to get initial voicemail status for {self._mailbox}: {e}"
+            )
+
+    def _update_from_response(self, response_data):
+        """Update sensor state from AMI response data."""
+        try:
+            new_messages = int(response_data.get("NewMessages", 0))
+            old_messages = int(response_data.get("OldMessages", 0))
+
+            self._state = new_messages
+            self._extra_attributes = {
+                "new_messages": new_messages,
+                "old_messages": old_messages,
+                "total_messages": new_messages + old_messages,
+                "mailbox": self._mailbox,
+            }
+        except (ValueError, TypeError) as e:
+            _LOGGER.warning(
+                f"Failed to parse voicemail status data for {self._mailbox}: {e}"
+            )
+
+    def handle_mwi(self, event: Event, **kwargs):
+        """Handle MWI (Message Waiting Indicator) event."""
+        try:
+            new_messages = int(event.get("New", 0))
+            old_messages = int(event.get("Old", 0))
+
+            self._state = new_messages
+            self._extra_attributes = {
+                "new_messages": new_messages,
+                "old_messages": old_messages,
+                "total_messages": new_messages + old_messages,
+                "mailbox": event.get("Mailbox", self._mailbox),
+            }
+            self.schedule_update_ha_state()
+        except (ValueError, TypeError) as e:
+            _LOGGER.warning(f"Failed to parse MWI event for {self._mailbox}: {e}")
+
+    @property
+    def state(self) -> int:
+        """Return the number of new voicemail messages."""
+        return self._state
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        return self._extra_attributes
+
+    @property
+    def icon(self) -> str:
+        """Return the icon of the sensor."""
+        return "mdi:voicemail" if self._state > 0 else "mdi:email-outline"
