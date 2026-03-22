@@ -25,5 +25,5 @@ STATE_ICONS = {
     "On hold": "mdi:phone-paused",
     "Unknown": "mdi:phone-off",
 }
-SIP_LOADED = "sip_loaded"
 PJSIP_LOADED = "pjsip_loaded"
+IAX_LOADED = "iax_loaded"

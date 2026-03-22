@@ -32,7 +32,7 @@ class RegisteredSensor(AsteriskDeviceEntity, BinarySensorEntity):
         """Initialize the sensor."""
         super().__init__(hass, entry, device)
         self._unique_id = f"{self._unique_id_prefix}_registered"
-        self._name = f"{device['extension']} Registered"
+        self._name = f"{device['tech']}/{device['extension']} Registered"
         self._state = (
             device["status"] != "Unavailable" and device["status"] != "Unknown"
         )
@@ -41,6 +41,12 @@ class RegisteredSensor(AsteriskDeviceEntity, BinarySensorEntity):
             white_list=["DeviceStateChange"],
             Device=f"{device['tech']}/{device['extension']}",
         )
+        if device['tech'].upper() == "IAX2":
+            self._ami_client.add_event_listener(
+                self.handle_iax_status_change,
+                white_list=["PeerStatus"],
+                Peer=f"IAX2/{device['extension']}",
+            )
 
     def handle_state_change(self, event: Event, **kwargs):
         """Handle an device state change event."""
@@ -48,6 +54,17 @@ class RegisteredSensor(AsteriskDeviceEntity, BinarySensorEntity):
         self._state = state != "UNAVAILABLE" and state != "UNKNOWN"
         self.schedule_update_ha_state()
 
+    def handle_iax_status_change(self, event: Event, **kwargs):
+        """Handle IAX peer status change event."""
+        # key was PeerStatus in PeerStatus event
+        # ex. "Registered", "Unreachable", "Lagged", "Reachable"
+        status = event["PeerStatus"]
+        _LOGGER.debug(f"IAX2 status change for {self._name}: {status}")
+        
+        # OK or Registered then ON
+        self._state = status in ["Registered", "Reachable", "Lagged"]
+        self.schedule_update_ha_state()
+        
     @property
     def is_on(self) -> bool:
         """Return registered state."""
