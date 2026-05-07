@@ -2,6 +2,13 @@ send_action:
   name: Send Action
   description: Send an action to the Asterisk Manager Interface.
   fields:
+    entry_id:
+      name: Entry ID
+      description: Config entry to target when multiple Asterisk integrations are loaded.
+      required: false
+      example: "01HZX2ABCD1234567890EFGHIJ"
+      selector:
+        text:
     action:
       name: Action
       description: Action to send.
@@ -11,8 +18,36 @@ send_action:
         text:
     parameters:
       name: Parameters
-      description: Parameters to send with the action.
-      required: true
+      description: Parameters to send with the action. Event-list actions only return the immediate AMI response.
+      required: false
       example: "key: val"
       selector:
         object:
+get_conference_rooms:
+  name: Get Conference Rooms
+  description: Return the currently active ConfBridge rooms from Asterisk.
+  fields:
+    entry_id:
+      name: Entry ID
+      description: Config entry to target when multiple Asterisk integrations are loaded.
+      required: false
+      example: "01HZX2ABCD1234567890EFGHIJ"
+      selector:
+        text:
+    conference:
+      name: Conference
+      description: Optional conference number to check directly, for example 1029.
+      required: false
+      example: "1029"
+      selector:
+        text:
+    timeout:
+      name: Timeout
+      description: How many seconds to wait for the conference room list to finish.
+      required: false
+      example: 10
+      selector:
+        number:
+          min: 1
+          max: 60
+          mode: box
