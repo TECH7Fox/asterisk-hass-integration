@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import re
 
 from asterisk.ami import AMIClient, AutoReconnect, Event, SimpleAction
 from homeassistant.config_entries import ConfigEntry
@@ -13,9 +14,31 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 
-from .const import AUTO_RECONNECT, CLIENT, DOMAIN, PLATFORMS, SIP_LOADED, PJSIP_LOADED
+from .const import (
+    AUTO_RECONNECT,
+    CLIENT,
+    DOMAIN,
+    EVENT_USER_EVENT,
+    PJSIP_LOADED,
+    PLATFORMS,
+    SIP_LOADED,
+)
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def normalize_ami_key(key: str) -> str:
+    """Normalize AMI event keys to Home Assistant event data keys."""
+    key = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", key)
+    return key.replace("-", "_").lower()
+
+
+def ami_user_event_data(event: Event) -> dict:
+    """Convert an AMI UserEvent to Home Assistant event data."""
+    return {
+        "event": event.name,
+        **{normalize_ami_key(key): value for key, value in event.keys.items()},
+    }
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -58,6 +81,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 hass.loop
             )
 
+    def forward_user_event(event: Event, **kwargs):
+        """Forward AMI UserEvent events to the Home Assistant event bus."""
+        event_data = ami_user_event_data(event)
+        _LOGGER.debug("Forwarding AMI UserEvent: %s", event_data)
+        hass.loop.call_soon_threadsafe(
+            hass.bus.async_fire,
+            EVENT_USER_EVENT,
+            event_data,
+        )
+
     async def send_action_service(call) -> None:
         "Send action service."
 
@@ -97,6 +130,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         PJSIP_LOADED: False,
     }
     hass.services.async_register(DOMAIN, "send_action", send_action_service)
+
+    client.add_event_listener(forward_user_event, white_list=["UserEvent"])
 
     client.add_event_listener(create_SIP_device, white_list=["PeerEntry"])
     client.add_event_listener(devices_complete, white_list=["PeerlistComplete"])
