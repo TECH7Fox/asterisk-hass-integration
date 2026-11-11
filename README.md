@@ -13,6 +13,28 @@ I am open for suggestions!
 
 The [Asterisk add-on](https://github.com/TECH7Fox/asterisk-hass-addons) fully supports this integration.
 
+## AMI UserEvents
+
+AMI `UserEvent` events are forwarded to the Home Assistant event bus as
+`asterisk_user_event`. Event data uses snake_case keys.
+
+For example, this dialplan application:
+
+```asterisk
+UserEvent(CustomAutomation,Source: pbx,Button: 4)
+```
+
+Can trigger a Home Assistant automation like:
+
+```yaml
+trigger:
+  - platform: event
+    event_type: asterisk_user_event
+    event_data:
+      user_event: CustomAutomation
+      button: "4"
+```
+
 ## Requirements
 For this to work you will need the following:
 * A sip/pbx server. (I recommend the Asterisk add-on to get started)

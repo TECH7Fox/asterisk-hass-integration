@@ -1,4 +1,5 @@
 DOMAIN = "asterisk"
+EVENT_USER_EVENT = f"{DOMAIN}_user_event"
 CLIENT = "client"
 AUTO_RECONNECT = "auto_reconnect"
 PLATFORMS = [
