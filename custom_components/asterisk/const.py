@@ -27,3 +27,7 @@ STATE_ICONS = {
 }
 SIP_LOADED = "sip_loaded"
 PJSIP_LOADED = "pjsip_loaded"
+REGISTRATIONS = "registrations"
+REGISTRATIONS_LOADED = "registrations_loaded"
+AMI_CONNECTED = "ami_connected"
+REGISTRATION_ENTITIES = "registration_entities"
