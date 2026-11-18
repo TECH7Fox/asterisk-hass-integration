@@ -13,7 +13,18 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 
-from .const import AUTO_RECONNECT, CLIENT, DOMAIN, PLATFORMS, SIP_LOADED, PJSIP_LOADED
+from .const import (
+    AMI_CONNECTED,
+    AUTO_RECONNECT,
+    CLIENT,
+    DOMAIN,
+    PJSIP_LOADED,
+    PLATFORMS,
+    REGISTRATION_ENTITIES,
+    REGISTRATIONS,
+    REGISTRATIONS_LOADED,
+    SIP_LOADED,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,20 +50,38 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         }
         hass.data[DOMAIN][entry.entry_id][CONF_DEVICES].append(device)
 
+    def create_registration(event: Event, **kwargs):
+        data = hass.data[DOMAIN][entry.entry_id]
+        if data[REGISTRATIONS_LOADED]:
+            # Refresh after a reconnect, handled by the sensors themselves
+            return
+        _LOGGER.debug("Found outbound registration: %s", event)
+        data[REGISTRATIONS].append(
+            {
+                "name": event["ObjectName"],
+                "client_uri": event["ClientUri"],
+                "server_uri": event["ServerUri"],
+                "status": event["Status"],
+            }
+        )
+
     def devices_complete(event: Event, **kwargs):
-        sip_loaded = hass.data[DOMAIN][entry.entry_id][SIP_LOADED]
-        pjsip_loaded = hass.data[DOMAIN][entry.entry_id][PJSIP_LOADED]
+        data = hass.data[DOMAIN][entry.entry_id]
         if event.name == "PeerlistComplete":
             _LOGGER.debug("SIP loaded.")
-            sip_loaded = True
-            hass.data[DOMAIN][entry.entry_id][SIP_LOADED] = True
+            data[SIP_LOADED] = True
         elif event.name == "EndpointListComplete":
             _LOGGER.debug("PJSIP loaded.")
-            pjsip_loaded = True
-            hass.data[DOMAIN][entry.entry_id][PJSIP_LOADED] = True
-        
-        if sip_loaded and pjsip_loaded:
-            _LOGGER.debug("Both SIP and PJSIP loaded. Loading platforms.")
+            data[PJSIP_LOADED] = True
+        elif event.name == "OutboundRegistrationDetailComplete":
+            if data[REGISTRATIONS_LOADED]:
+                # Refresh after a reconnect, platforms are already loaded
+                return
+            _LOGGER.debug("Outbound registrations loaded.")
+            data[REGISTRATIONS_LOADED] = True
+
+        if data[SIP_LOADED] and data[PJSIP_LOADED] and data[REGISTRATIONS_LOADED]:
+            _LOGGER.debug("Devices and registrations loaded. Loading platforms.")
             asyncio.run_coroutine_threadsafe(
                 hass.config_entries.async_forward_entry_setups(entry, PLATFORMS),
                 hass.loop
@@ -93,8 +122,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CLIENT: client,
         AUTO_RECONNECT: auto_reconnect,
         CONF_DEVICES: [],
+        REGISTRATIONS: [],
+        REGISTRATION_ENTITIES: [],
+        AMI_CONNECTED: True,
         SIP_LOADED: False,
         PJSIP_LOADED: False,
+        REGISTRATIONS_LOADED: False,
     }
     hass.services.async_register(DOMAIN, "send_action", send_action_service)
 
@@ -111,6 +144,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if f.response.is_error():
        _LOGGER.debug("PJSIP module not loaded. Skipping PJSIP devices.")
        hass.data[DOMAIN][entry.entry_id][PJSIP_LOADED] = True
+
+    # Outbound registrations (trunks); loading the platforms waits for this list too
+    client.add_event_listener(
+        create_registration, white_list=["OutboundRegistrationDetail"]
+    )
+    client.add_event_listener(
+        devices_complete, white_list=["OutboundRegistrationDetailComplete"]
+    )
+    f = client.send_action(SimpleAction("PJSIPShowRegistrationsOutbound"))
+    if f.response.is_error():
+        _LOGGER.debug("No outbound registrations. Skipping registration sensors.")
+        hass.data[DOMAIN][entry.entry_id][REGISTRATIONS_LOADED] = True
 
     return True
 
