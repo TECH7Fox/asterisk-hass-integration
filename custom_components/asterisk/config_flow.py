@@ -16,7 +16,6 @@ class AsteriskConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Asterisk."""
 
     VERSION = 1
-    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
     reauth_entry: ConfigEntry | None = None
 
     async def _show_form(self, errors: dict[str, str] | None = None) -> FlowResult:
