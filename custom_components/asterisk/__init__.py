@@ -12,6 +12,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
+from homeassistant.helpers import device_registry as dr
 
 from .const import AUTO_RECONNECT, CLIENT, DOMAIN, PLATFORMS, SIP_LOADED, PJSIP_LOADED
 
@@ -97,6 +98,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         PJSIP_LOADED: False,
     }
     hass.services.async_register(DOMAIN, "send_action", send_action_service)
+
+    # Register the server device up front, so device entities can link to it
+    # through via_device_id regardless of platform setup order.
+    dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, f"{entry.entry_id}_server")},
+        name="Asterisk Server",
+        manufacturer="Asterisk",
+        model="PBX",
+        configuration_url=f"http://{entry.data[CONF_HOST]}",
+    )
 
     client.add_event_listener(create_SIP_device, white_list=["PeerEntry"])
     client.add_event_listener(devices_complete, white_list=["PeerlistComplete"])
